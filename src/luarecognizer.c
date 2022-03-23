@@ -44,13 +44,40 @@ static int meta_pushptr(lua_State *L) {
 }
 #endif
 
+static int meta_alts(lua_State *L) {
+	void *recog = getrecog(L, 1);
+	int alts = luaL_checkinteger(L, 2);
+	vlib.recog_alts(recog, alts);
+	return 0;
+}
+
+static int meta_timings(lua_State *L) {
+	void *recog = getrecog(L, 1);
+	vlib.recog_words(recog, lua_toboolean(L, 2));
+	return 0;
+}
+
+static int meta_result(lua_State *L) {
+	void *recog = getrecog(L, 1);
+	voskstr out = vlib.recog_result(recog);
+	if(out == NULL) lua_pushnil(L);
+	else lua_pushstring(L, out);
+	return 1;
+}
+
+static int meta_partial(lua_State *L) {
+	void *recog = getrecog(L, 1);
+	voskstr out = vlib.recog_partial(recog);
+	if(out == NULL) lua_pushnil(L);
+	else lua_pushstring(L, out);
+	return 1;
+}
+
 static int meta_final(lua_State *L) {
 	void *recog = getrecog(L, 1);
 	voskstr out = vlib.recog_final(recog);
-	if(out == NULL)
-		lua_pushnil(L);
-	else
-		lua_pushstring(L, out);
+	if(out == NULL) lua_pushnil(L);
+	else lua_pushstring(L, out);
 	return 1;
 }
 
@@ -71,6 +98,10 @@ static const luaL_Reg recogmeta[] = {
 #	ifdef LUA_JITLIBNAME
 		{"pushptr", meta_pushptr},
 #	endif
+	{"alts", meta_alts},
+	{"timings", meta_timings},
+	{"result", meta_result},
+	{"partial", meta_partial},
 	{"final", meta_final},
 	{"reset", meta_reset},
 

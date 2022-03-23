@@ -18,14 +18,21 @@ static int meta_recog(lua_State *L) {
 	return luavosk_newrecognizer(L, model, rate);
 }
 
+static int meta_find(lua_State *L) {
+	void *model = getmodel(L, 1);
+	voskstr word = luaL_checkstring(L, 2);
+	lua_pushboolean(L, vlib.model_find(model, word));
+	return 1;
+}
+
 static int meta_free(lua_State *L) {
-	// TODO Free all recognizers
 	vlib.model_free(getmodel(L, 1));
 	return 0;
 }
 
 static const luaL_Reg modelmeta[] = {
 	{"recognizer", meta_recog},
+	{"find", meta_find},
 
 	{"__gc", meta_free},
 
