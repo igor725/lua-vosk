@@ -27,7 +27,34 @@ int luavosk_newrecognizer(lua_State *L, void *model, float rate) {
 	return 1;
 }
 
+static int meta_final(lua_State *L) {
+	void *recog = getrecog(L, 1);
+	voskstr out = vlib.recog_final(recog);
+	if(out == NULL)
+		lua_pushnil(L);
+	else
+		lua_pushstring(L, out);
+	return 1;
+}
+
+static int meta_reset(lua_State *L) {
+	void *recog = getrecog(L, 1);
+	vlib.recog_reset(recog);
+	return 0;
+}
+
+static int meta_free(lua_State *L) {
+	void *recog = getrecog(L, 1);
+	vlib.recog_free(recog);
+	return 0;
+}
+
 static const luaL_Reg recogmeta[] = {
+	{"final", meta_final},
+	{"reset", meta_reset},
+
+	{"__gc", meta_free},
+
 	{NULL, NULL}
 };
 

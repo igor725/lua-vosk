@@ -1,5 +1,7 @@
 #ifndef LUAVOSK_BRIDGE_H
 #define LUAVOSK_BRIDGE_H
+#include "core.h"
+
 struct VoskLib {
 	void *lib;
 
@@ -11,7 +13,7 @@ struct VoskLib {
 
 	void *(*recog_new)(void *, float);
 	int   (*recog_accept)(void *, void *, int);
-	const char *(*recog_final)(void *);
+	voskstr (*recog_final)(void *);
 	void  (*recog_reset)(void *);
 	void  (*recog_free)(void *);
 };
