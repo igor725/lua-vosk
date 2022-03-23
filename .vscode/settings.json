@@ -1,0 +1,7 @@
+{
+	"files.associations": {
+		"lua.h": "c",
+		"lauxlib.h": "c",
+		"core.h": "c"
+	}
+}
