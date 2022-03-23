@@ -1,2 +1,4 @@
 *.obj
 *.dll
+test/*
+!test/*.lua

@@ -1,0 +1,3 @@
+LIBRARY VOSK
+EXPORTS
+	luaopen_vosk @1

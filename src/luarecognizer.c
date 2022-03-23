@@ -4,7 +4,7 @@
 #include "luarecognizer.h"
 
 static void *getrecog(lua_State *L, int idx) {
-	void **ud = lua_touserdata(L, idx);
+	void **ud = luaL_checkudata(L, idx, "vosk_recognizer");
 	if(*ud == NULL) {
 		luaL_error(L, "Something went wrong");
 		return NULL;
@@ -13,17 +13,32 @@ static void *getrecog(lua_State *L, int idx) {
 }
 
 int luavosk_newrecognizer(lua_State *L, void *model, float rate) {
-	voskstr modeln = luaL_checkstring(L, 1);
-	void *modelp = vlib.model_new(modeln);
-	if(!modelp) {
+	void *recogp = vlib.recog_new(model, rate);
+	if(!recogp) {
 		lua_pushnil(L);
 		return 1;
 	}
 
 	void **ud = lua_newuserdata(L, sizeof(void *));
-	luaL_setmetatable(L, "vosk_model");
-	*ud = modelp;
+	luaL_setmetatable(L, "vosk_recognizer");
+	*ud = recogp;
 
+	return 1;
+}
+
+static int meta_push(lua_State *L) {
+	void *recog = getrecog(L, 1);
+	size_t len = 0;
+	const void *data = luaL_checklstring(L, 2, &len);
+	lua_pushboolean(L, vlib.recog_accept(recog, data, (int)len));
+	return 1;
+}
+
+static int meta_pushld(lua_State *L) {
+	void *recog = getrecog(L, 1);
+	const void *data = lua_touserdata(L, 2);
+	int len = luaL_checkinteger(L, 3);
+	lua_pushboolean(L, vlib.recog_accept(recog, data, len));
 	return 1;
 }
 
@@ -50,6 +65,8 @@ static int meta_free(lua_State *L) {
 }
 
 static const luaL_Reg recogmeta[] = {
+	{"push", meta_push},
+	{"pushld", meta_pushld},
 	{"final", meta_final},
 	{"reset", meta_reset},
 

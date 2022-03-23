@@ -21,10 +21,11 @@ int luavosk_initlib(voskstr lib) {
 	if(vlib.lib == NULL) return 0;
 
 	for(int i = 0; symlist[i]; i++) {
-		if(!backend_getsym(vlib.lib, symlist[i], ((void **)&vlib)[i + 1]))
+		if(!backend_getsym(vlib.lib, symlist[i], &((void **)&vlib)[i + 1]))
 			return 0;
 	}
 
+	vlib.set_loglevel(-1);
 	return 1;
 }
 
