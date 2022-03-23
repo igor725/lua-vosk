@@ -7,12 +7,17 @@ print('Recognizer created', recog)
 local f = io.open('rec.wav', 'rb')
 f:seek('set', 44)
 
+local function txt(s)
+	return s:match('^{.+"text".+:.+"(.*)".+}$')
+end
+
 while true do
 	local data = f:read(1024)
 	if not data then break end
 	if recog:push(data) then
-		local result = recog:result()
-		result = result:match('^{.+"text".+:.+"(.+)".+}$')
-		if result then io.write(result, ' ') end
+		local result = txt(recog:result())
+		if result and #result > 0 then io.write(result, ' ') end
 	end
 end
+
+print(txt(recog:final()))
