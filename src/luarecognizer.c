@@ -34,13 +34,15 @@ static int meta_push(lua_State *L) {
 	return 1;
 }
 
-static int meta_pushld(lua_State *L) {
+#ifdef LUA_JITLIBNAME
+static int meta_pushptr(lua_State *L) {
 	void *recog = getrecog(L, 1);
-	const void *data = lua_touserdata(L, 2);
+	const void *data = lua_topointer(L, 2);
 	int len = luaL_checkinteger(L, 3);
 	lua_pushboolean(L, vlib.recog_accept(recog, data, len));
 	return 1;
 }
+#endif
 
 static int meta_final(lua_State *L) {
 	void *recog = getrecog(L, 1);
@@ -66,7 +68,9 @@ static int meta_free(lua_State *L) {
 
 static const luaL_Reg recogmeta[] = {
 	{"push", meta_push},
-	{"pushld", meta_pushld},
+#	ifdef LUA_JITLIBNAME
+		{"pushptr", meta_pushptr},
+#	endif
 	{"final", meta_final},
 	{"reset", meta_reset},
 
