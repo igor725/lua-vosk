@@ -2,6 +2,8 @@
 #define LUAVOSK_BRIDGE_H
 #include "core.h"
 
+#define LUAVOSK_NL "Please call vosk.init() first"
+
 struct VoskLib {
 	void *lib;
 

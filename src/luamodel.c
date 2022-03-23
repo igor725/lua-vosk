@@ -41,7 +41,7 @@ static const luaL_Reg modelmeta[] = {
 
 int luavosk_newmodel(lua_State *L) {
 	if(!luavosk_ready()) {
-		luaL_error(L, "Please call vosk.init() first");
+		luaL_error(L, LUAVOSK_NL);
 		return 0;
 	}
 

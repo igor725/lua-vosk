@@ -11,12 +11,22 @@ static int loadvosk(lua_State *L) {
 }
 
 static int loglevel(lua_State *L) {
+	if(!luavosk_ready()) {
+		luaL_error(L, LUAVOSK_NL);
+		return 0;
+	}
+
 	int level = luaL_checkinteger(L, 1);
 	vlib.set_loglevel(level);
 	return 0;
 }
 
 static int usegpu(lua_State *L) {
+	if(!luavosk_ready()) {
+		luaL_error(L, LUAVOSK_NL);
+		return 0;
+	}
+
 	vlib.init_gpu();
 	return 0;
 }
