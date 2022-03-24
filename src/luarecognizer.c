@@ -37,9 +37,9 @@ static int meta_push(lua_State *L) {
 #ifdef LUA_JITLIBNAME
 static int meta_pushptr(lua_State *L) {
 	void *recog = getrecog(L, 1);
-	const void *data = lua_topointer(L, 2);
+	const void **data = (const void **)lua_topointer(L, 2);
 	int len = luaL_checkinteger(L, 3);
-	lua_pushboolean(L, vlib.recog_accept(recog, data, len));
+	lua_pushboolean(L, vlib.recog_accept(recog, data[0], len));
 	return 1;
 }
 #endif
