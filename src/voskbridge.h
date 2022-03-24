@@ -10,9 +10,12 @@ struct VoskLib {
 	void  (*set_loglevel)(int);
 	void  (*init_gpu)(void);
 
-	void *(*model_new)(const char *);
+	void *(*model_new)(voskstr);
 	int   (*model_find)(void *, voskstr);
 	void  (*model_free)(void *);
+
+	void *(*spkmodel_new)(voskstr);
+	void  (*spkmodel_free)(void *);
 
 	void *(*recog_new)(void *, float);
 	void  (*recog_alts)(void *, int);

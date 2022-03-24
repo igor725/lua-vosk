@@ -16,7 +16,7 @@ static int loglevel(lua_State *L) {
 		return 0;
 	}
 
-	int level = luaL_checkinteger(L, 1);
+	int level = (int)luaL_checkinteger(L, 1);
 	vlib.set_loglevel(level);
 	return 0;
 }
@@ -42,7 +42,8 @@ static luaL_Reg vosklib[] = {
 int luaopen_vosk(lua_State *L) {
 	lua_newtable(L);
 	luaL_setfuncs(L, vosklib, 0);
-	luavosk_model(L, -1);
+	luavosk_spkmodel(L, -1);
 	luavosk_recognizer(L);
+	luavosk_model(L, -1);
 	return 1;
 }

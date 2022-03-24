@@ -21,7 +21,7 @@ static int meta_recog(lua_State *L) {
 static int meta_find(lua_State *L) {
 	void *model = getmodel(L, 1);
 	voskstr word = luaL_checkstring(L, 2);
-	lua_pushboolean(L, vlib.model_find(model, word));
+	lua_pushinteger(L, vlib.model_find(model, word));
 	return 1;
 }
 
@@ -39,7 +39,7 @@ static const luaL_Reg modelmeta[] = {
 	{NULL, NULL}
 };
 
-int luavosk_newmodel(lua_State *L) {
+static int newmodel(lua_State *L) {
 	if(!luavosk_ready()) {
 		luaL_error(L, LUAVOSK_NL);
 		return 0;
@@ -65,6 +65,6 @@ void luavosk_model(lua_State *L, int idx) {
 	lua_setfield(L, -2, "__index");
 	luaL_setfuncs(L, modelmeta, 0);
 	lua_pop(L, 1);
-	lua_pushcfunction(L, luavosk_newmodel);
+	lua_pushcfunction(L, newmodel);
 	lua_setfield(L, idx - 1, "model");
 }

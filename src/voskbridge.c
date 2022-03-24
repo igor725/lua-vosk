@@ -9,6 +9,8 @@ voskstr symlist[] = {
 	"vosk_model_new",
 	"vosk_model_find_word",
 	"vosk_model_free",
+	"vosk_spk_model_new",
+	"vosk_spk_model_free",
 	"vosk_recognizer_new",
 	"vosk_recognizer_set_max_alternatives",
 	"vosk_recognizer_set_words",

@@ -34,7 +34,7 @@ static int meta_push(lua_State *L) {
 	return 1;
 }
 
-#ifdef LUA_JITLIBNAME
+#ifdef LUAVOSK_HASJIT
 static int meta_pushptr(lua_State *L) {
 	void *recog = getrecog(L, 1);
 	const void **data = (const void **)lua_topointer(L, 2);
@@ -95,7 +95,7 @@ static int meta_free(lua_State *L) {
 
 static const luaL_Reg recogmeta[] = {
 	{"push", meta_push},
-#	ifdef LUA_JITLIBNAME
+#	ifdef LUAVOSK_HASJIT
 		{"pushptr", meta_pushptr},
 #	endif
 	{"alts", meta_alts},
