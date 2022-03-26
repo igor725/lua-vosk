@@ -1,5 +1,5 @@
 vosk = require('vosk')
-vosk.init('libvosk.dll')
+vosk.init('libvosk')
 model = vosk.model('vosk-model-small-ru-0.22')
 print('Model loaded', model)
 recog = model:recognizer(16000.0)

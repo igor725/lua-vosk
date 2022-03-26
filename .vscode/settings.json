@@ -3,6 +3,7 @@
 		"lua.h": "c",
 		"lauxlib.h": "c",
 		"core.h": "c",
-		"lualib.h": "c"
+		"lualib.h": "c",
+		"luaspkmodel.h": "c"
 	}
 }

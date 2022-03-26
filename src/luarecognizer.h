@@ -3,6 +3,7 @@
 #include "core.h"
 #include "luahelp.h"
 
-int luavosk_newrecognizer(lua_State *L, void *model, float rate);
+void *lua_checkrecog(lua_State *L, int idx);
+int luavosk_newrecognizer(lua_State *L, void *model, void *spkmodel, float rate);
 void luavosk_recognizer(lua_State *L);
 #endif

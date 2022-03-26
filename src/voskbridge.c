@@ -11,9 +11,12 @@ voskstr symlist[] = {
 	"vosk_model_free",
 	"vosk_spk_model_new",
 	"vosk_spk_model_free",
+	"vosk_recognizer_new_spk",
+	"vosk_recognizer_set_spk_model",
 	"vosk_recognizer_new",
 	"vosk_recognizer_set_max_alternatives",
 	"vosk_recognizer_set_words",
+	"vosk_recognizer_set_nlsml",
 	"vosk_recognizer_accept_waveform",
 	"vosk_recognizer_result",
 	"vosk_recognizer_partial_result",
@@ -23,12 +26,14 @@ voskstr symlist[] = {
 	NULL
 };
 
+int critsyms[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1};
+
 int luavosk_initlib(voskstr lib) {
 	vlib.lib = backend_loadlib(lib);
 	if(vlib.lib == NULL) return 0;
 
 	for(int i = 0; symlist[i]; i++) {
-		if(!backend_getsym(vlib.lib, symlist[i], &((void **)&vlib)[i + 1]))
+		if(!backend_getsym(vlib.lib, symlist[i], &((void **)&vlib)[i + 1]) && critsyms[i])
 			return 0;
 	}
 

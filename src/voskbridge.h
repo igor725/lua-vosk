@@ -17,9 +17,12 @@ struct VoskLib {
 	void *(*spkmodel_new)(voskstr);
 	void  (*spkmodel_free)(void *);
 
+	void *(*recog_newspk)(void *, float, void *);
+	void  (*recog_setspk)(void *, void *);
 	void *(*recog_new)(void *, float);
 	void  (*recog_alts)(void *, int);
 	void  (*recog_words)(void *, int);
+	void  (*recog_nlsml)(void *, int);
 	int   (*recog_accept)(void *, const void *, int);
 	voskstr (*recog_result)(void *);
 	voskstr (*recog_partial)(void *);

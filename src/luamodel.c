@@ -2,8 +2,9 @@
 #include "luamodel.h"
 #include "voskbridge.h"
 #include "luarecognizer.h"
+#include "luaspkmodel.h"
 
-static void *getmodel(lua_State *L, int idx) {
+void *lua_checkmodel(lua_State *L, int idx) {
 	void **ud = luaL_checkudata(L, idx, "vosk_model");
 	if(*ud == NULL) {
 		luaL_error(L, "Something went wrong");
@@ -13,20 +14,21 @@ static void *getmodel(lua_State *L, int idx) {
 }
 
 static int meta_recog(lua_State *L) {
-	void *model = getmodel(L, 1);
+	void *model = lua_checkmodel(L, 1);
 	float rate = (float)luaL_checknumber(L, 2);
-	return luavosk_newrecognizer(L, model, rate);
+	void *spkmodel = lua_testspkmodel(L, 3);
+	return luavosk_newrecognizer(L, model, spkmodel, rate);
 }
 
 static int meta_find(lua_State *L) {
-	void *model = getmodel(L, 1);
+	void *model = lua_checkmodel(L, 1);
 	voskstr word = luaL_checkstring(L, 2);
 	lua_pushinteger(L, vlib.model_find(model, word));
 	return 1;
 }
 
 static int meta_free(lua_State *L) {
-	vlib.model_free(getmodel(L, 1));
+	vlib.model_free(lua_checkmodel(L, 1));
 	return 0;
 }
 
