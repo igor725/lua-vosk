@@ -1,12 +1,15 @@
 #ifndef LUAVOSK_CORE_H
 #define LUAVOSK_CORE_H
 
+#define LUA_LIB
+
 #ifdef _WIN32
 #	define LUAVOSK_WINDOWS
 #	define LUA_BUILD_AS_DLL
-#	define LUA_LIB
+#	define LUAVOSK_LIB "libvosk.dll"
 #else
 #	define LUAVOSK_UNIX
+#	define LUAVOSK_LIB "libvosk.so"
 #endif
 
 #ifndef NULL

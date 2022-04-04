@@ -2,9 +2,10 @@
 #include "luamodel.h"
 #include "voskbridge.h"
 #include "luarecognizer.h"
+#include "luaspkmodel.h"
 
 static int loadvosk(lua_State *L) {
-	voskstr libname = luaL_checkstring(L, 1);
+	voskstr libname = luaL_optstring(L, 1, LUAVOSK_LIB);
 	if(!luavosk_initlib(libname))
 		luaL_error(L, "Failed to load libvosk");
 	return 0;

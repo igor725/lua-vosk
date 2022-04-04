@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/Users/igorg/Documents/GitHub/cserver/Lua/LuaJIT/src"
+                "C:/Users/igorg/Documents/GitHub/cserver/Lua/LuaJIT/src",
+                "/usr/local/include/luajit-2.1"
             ],
             "defines": [
                 "_DEBUG",

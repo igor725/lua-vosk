@@ -33,15 +33,16 @@ int luavosk_newrecognizer(lua_State *L, void *model, void *spkmodel, float rate)
 }
 
 static int meta_setspk(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
-	void *model = lua_checkspkmodel(L, 2);
-	vlib.recog_setspk(recog, model);
+	vlib.recog_setspk(
+		lua_checkrecog(L, 1),
+		lua_checkspkmodel(L, 2)	
+	);
 	return 0;
 }
 
 static int meta_push(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
 	size_t len = 0;
+	void *recog = lua_checkrecog(L, 1);
 	const void *data = luaL_checklstring(L, 2, &len);
 	lua_pushboolean(L, vlib.recog_accept(recog, data, (int)len));
 	return 1;
@@ -49,69 +50,80 @@ static int meta_push(lua_State *L) {
 
 #ifdef LUAVOSK_HASJIT
 static int meta_pushptr(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
-	const void **data = (const void **)lua_topointer(L, 2);
-	int len = luaL_checkinteger(L, 3);
-	lua_pushboolean(L, vlib.recog_accept(recog, data[0], len));
+	lua_pushboolean(L, vlib.recog_accept(
+		lua_checkrecog(L, 1),
+		*(const void **)lua_topointer(L, 2),
+		luaL_checkinteger(L, 3)
+	));
 	return 1;
 }
 #endif
 
 static int meta_alts(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
-	int alts = luaL_checkinteger(L, 2);
-	vlib.recog_alts(recog, alts);
+	vlib.recog_alts(
+		lua_checkrecog(L, 1),
+		luaL_checkinteger(L, 2)
+	);
 	return 0;
 }
 
 static int meta_timings(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
-	vlib.recog_words(recog, lua_toboolean(L, 2));
+	vlib.recog_words(
+		lua_checkrecog(L, 1),
+		lua_toboolean(L, 2)
+	);
 	return 0;
 }
 
 static int meta_nlsml(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
 	lua_pushboolean(L, vlib.recog_nlsml != NULL);
 	if(vlib.recog_nlsml)
-		vlib.recog_nlsml(recog, lua_toboolean(L, 2));
+		vlib.recog_nlsml(
+			lua_checkrecog(L, 1),
+			lua_toboolean(L, 2)
+		);
 
 	return 1;
 }
 
 static int meta_result(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
-	voskstr out = vlib.recog_result(recog);
+	voskstr out = vlib.recog_result(
+		lua_checkrecog(L, 1)
+	);
 	if(out == NULL) lua_pushnil(L);
 	else lua_pushstring(L, out);
 	return 1;
 }
 
 static int meta_partial(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
-	voskstr out = vlib.recog_partial(recog);
+	voskstr out = vlib.recog_partial(
+		lua_checkrecog(L, 1)
+	);
 	if(out == NULL) lua_pushnil(L);
 	else lua_pushstring(L, out);
 	return 1;
 }
 
 static int meta_final(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
-	voskstr out = vlib.recog_final(recog);
+	voskstr out = vlib.recog_final(
+		lua_checkrecog(L, 1)
+	);
 	if(out == NULL) lua_pushnil(L);
 	else lua_pushstring(L, out);
 	return 1;
 }
 
 static int meta_reset(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
-	vlib.recog_reset(recog);
+	vlib.recog_reset(
+		lua_checkrecog(L, 1)
+	);
 	return 0;
 }
 
 static int meta_free(lua_State *L) {
-	void *recog = lua_checkrecog(L, 1);
-	vlib.recog_free(recog);
+	vlib.recog_free(
+		lua_checkrecog(L, 1)
+	);
 	return 0;
 }
 
