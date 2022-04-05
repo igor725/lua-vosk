@@ -4,16 +4,16 @@
 #include "luaspkmodel.h"
 #include "luarecognizer.h"
 
-void *lua_checkrecog(lua_State *L, int idx) {
+vrcg lua_checkrecog(lua_State *L, int idx) {
 	void **ud = luaL_checkudata(L, idx, "vosk_recognizer");
 	if(*ud == NULL) {
 		luaL_error(L, "Something went wrong");
 		return NULL;
 	}
-	return *ud;
+	return (vrcg)*ud;
 }
 
-int luavosk_newrecognizer(lua_State *L, void *model, void *spkmodel, float rate) {
+int luavosk_newrecognizer(lua_State *L, vmdl model, vsmdl spkmodel, float rate) {
 	void *recogp;
 	if(spkmodel != NULL)
 		recogp = vlib.recog_newspk(model, rate, spkmodel);
@@ -42,7 +42,7 @@ static int meta_setspk(lua_State *L) {
 
 static int meta_push(lua_State *L) {
 	size_t len = 0;
-	void *recog = lua_checkrecog(L, 1);
+	vrcg recog = lua_checkrecog(L, 1);
 	const void *data = luaL_checklstring(L, 2, &len);
 	lua_pushboolean(L, vlib.recog_accept(recog, data, (int)len));
 	return 1;
@@ -87,7 +87,7 @@ static int meta_nlsml(lua_State *L) {
 }
 
 static int meta_result(lua_State *L) {
-	voskstr out = vlib.recog_result(
+	vstr out = vlib.recog_result(
 		lua_checkrecog(L, 1)
 	);
 	if(out == NULL) lua_pushnil(L);
@@ -96,7 +96,7 @@ static int meta_result(lua_State *L) {
 }
 
 static int meta_partial(lua_State *L) {
-	voskstr out = vlib.recog_partial(
+	vstr out = vlib.recog_partial(
 		lua_checkrecog(L, 1)
 	);
 	if(out == NULL) lua_pushnil(L);
@@ -105,7 +105,7 @@ static int meta_partial(lua_State *L) {
 }
 
 static int meta_final(lua_State *L) {
-	voskstr out = vlib.recog_final(
+	vstr out = vlib.recog_final(
 		lua_checkrecog(L, 1)
 	);
 	if(out == NULL) lua_pushnil(L);

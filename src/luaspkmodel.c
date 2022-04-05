@@ -2,19 +2,19 @@
 #include "voskbridge.h"
 #include "luaspkmodel.h"
 
-void *lua_checkspkmodel(lua_State *L, int idx) {
+vsmdl lua_checkspkmodel(lua_State *L, int idx) {
 	void **ud = luaL_checkudata(L, idx, "vosk_spkmodel");
 	if(*ud == NULL) {
 		luaL_error(L, "Something went wrong");
 		return NULL;
 	}
-	return *ud;
+	return (vsmdl)*ud;
 }
 
-void *lua_testspkmodel(lua_State *L, int idx) {
+vsmdl lua_testspkmodel(lua_State *L, int idx) {
 	void **ud = luaL_testudata(L, idx, "vosk_spkmodel");
 	if(ud == NULL || *ud == NULL) return NULL;
-	return *ud;
+	return (vsmdl)*ud;
 }
 
 static int meta_free(lua_State *L) {
@@ -34,8 +34,8 @@ static int newspkmodel(lua_State *L) {
 		return 0;
 	}
 
-	voskstr modeln = luaL_checkstring(L, 1);
-	void *modelp = vlib.spkmodel_new(modeln);
+	vstr modeln = luaL_checkstring(L, 1);
+	vsmdl modelp = vlib.spkmodel_new(modeln);
 	if(!modelp) {
 		lua_pushnil(L);
 		return 1;

@@ -4,26 +4,28 @@
 #include "luarecognizer.h"
 #include "luaspkmodel.h"
 
-void *lua_checkmodel(lua_State *L, int idx) {
+vmdl lua_checkmodel(lua_State *L, int idx) {
 	void **ud = luaL_checkudata(L, idx, "vosk_model");
 	if(*ud == NULL) {
 		luaL_error(L, "Something went wrong");
 		return NULL;
 	}
-	return *ud;
+	return (vmdl)*ud;
 }
 
 static int meta_recog(lua_State *L) {
-	void *model = lua_checkmodel(L, 1);
-	float rate = (float)luaL_checknumber(L, 2);
-	void *spkmodel = lua_testspkmodel(L, 3);
-	return luavosk_newrecognizer(L, model, spkmodel, rate);
+	return luavosk_newrecognizer(L,
+		lua_checkmodel(L, 1),
+		lua_testspkmodel(L, 3),
+		(float)luaL_checknumber(L, 2)
+	);
 }
 
 static int meta_find(lua_State *L) {
-	void *model = lua_checkmodel(L, 1);
-	voskstr word = luaL_checkstring(L, 2);
-	lua_pushinteger(L, vlib.model_find(model, word));
+	lua_pushinteger(L, vlib.model_find(
+		lua_checkmodel(L, 1),
+		luaL_checkstring(L, 2)
+	));
 	return 1;
 }
 
@@ -47,8 +49,8 @@ static int newmodel(lua_State *L) {
 		return 0;
 	}
 
-	voskstr modeln = luaL_checkstring(L, 1);
-	void *modelp = vlib.model_new(modeln);
+	vstr modeln = luaL_checkstring(L, 1);
+	vmdl modelp = vlib.model_new(modeln);
 	if(!modelp) {
 		lua_pushnil(L);
 		return 1;

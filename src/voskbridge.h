@@ -5,34 +5,34 @@
 #define LUAVOSK_NL "Please call vosk.init() first"
 
 struct VoskLib {
-	void *lib;
+	void  *lib;
 
 	void  (*set_loglevel)(int);
 	void  (*init_gpu)(void);
 
-	void *(*model_new)(voskstr);
-	int   (*model_find)(void *, voskstr);
-	void  (*model_free)(void *);
+	vmdl  (*model_new)(vstr);
+	int   (*model_find)(vmdl, vstr);
+	void  (*model_free)(vmdl);
 
-	void *(*spkmodel_new)(voskstr);
-	void  (*spkmodel_free)(void *);
+	vsmdl (*spkmodel_new)(vstr);
+	void  (*spkmodel_free)(vsmdl);
 
-	void *(*recog_newspk)(void *, float, void *);
-	void  (*recog_setspk)(void *, void *);
-	void *(*recog_new)(void *, float);
-	void  (*recog_alts)(void *, int);
-	void  (*recog_words)(void *, int);
-	void  (*recog_nlsml)(void *, int);
-	int   (*recog_accept)(void *, const void *, int);
-	voskstr (*recog_result)(void *);
-	voskstr (*recog_partial)(void *);
-	voskstr (*recog_final)(void *);
-	void  (*recog_reset)(void *);
-	void  (*recog_free)(void *);
+	vrcg  (*recog_newspk)(vmdl, float, vsmdl);
+	void  (*recog_setspk)(vrcg, vsmdl);
+	vrcg  (*recog_new)(vmdl, float);
+	void  (*recog_alts)(vrcg, int);
+	void  (*recog_words)(vrcg, int);
+	void  (*recog_nlsml)(vrcg, int);
+	int   (*recog_accept)(vrcg, const void *, int);
+	vstr  (*recog_result)(vrcg);
+	vstr  (*recog_partial)(vrcg);
+	vstr  (*recog_final)(vrcg);
+	void  (*recog_reset)(vrcg);
+	void  (*recog_free)(vrcg);
 };
 
 extern struct VoskLib vlib;
 
-int luavosk_initlib(voskstr lib);
+int luavosk_initlib(vstr lib);
 int luavosk_ready(void);
 #endif

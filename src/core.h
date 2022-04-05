@@ -16,5 +16,6 @@
 #	define NULL (void *)0
 #endif
 
-typedef const char *voskstr;
+typedef const char *vstr;
+typedef void *vrcg, *vmdl, *vsmdl;
 #endif

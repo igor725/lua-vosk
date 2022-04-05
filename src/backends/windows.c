@@ -3,11 +3,11 @@
 #include "core.h"
 #include "backend.h"
 
-void *backend_loadlib(voskstr path) {
+void *backend_loadlib(vstr path) {
 	return LoadLibraryA(path);
 }
 
-int backend_getsym(void *lib, voskstr symn, void *symp) {
+int backend_getsym(void *lib, vstr symn, void *symp) {
 	return (*(void **)symp = (void *)GetProcAddress(lib, symn)) != NULL;
 }
 

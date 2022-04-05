@@ -1,3 +1,4 @@
+#include "core.h"
 #include "luahelp.h"
 #include "luamodel.h"
 #include "voskbridge.h"
@@ -5,10 +6,24 @@
 #include "luaspkmodel.h"
 
 static int loadvosk(lua_State *L) {
-	voskstr libname = luaL_optstring(L, 1, LUAVOSK_LIB);
-	if(!luavosk_initlib(libname))
-		luaL_error(L, "Failed to load libvosk");
-	return 0;
+	if(lua_istable(L, 1)) {
+		size_t tabsize = lua_rawlen(L, 1), i;
+		for(i = 1; i <= tabsize; i++) {
+			lua_rawgeti(L, 1, i);
+			if(lua_isstring(L, -1) && luavosk_initlib(luaL_checkstring(L, -1))) {
+				lua_pop(L, i);
+				lua_pushboolean(L, 1);
+				return 1;
+			}
+		}
+		lua_pop(L, tabsize);
+		lua_pushboolean(L, 0);
+	} else {
+		vstr libname = luaL_optstring(L, 1, LUAVOSK_LIB);
+		lua_pushboolean(L, luavosk_initlib(libname));
+	}
+
+	return 1;
 }
 
 static int loglevel(lua_State *L) {

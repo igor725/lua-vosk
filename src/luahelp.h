@@ -6,11 +6,14 @@
 #include <lualib.h>
 
 #if LUA_VERSION_NUM == 501
+#	define lua_rawlen lua_objlen
+
 #	if defined(LUA_JITLIBNAME)
 #		define LUAVOSK_HASJIT
 #	else
 #		define luaL_setmetatable(L, tname) (luaL_getmetatable(L, tname), lua_setmetatable(L, -2))
 #		define luaL_setfuncs(L, l, nup) luaL_register(L, NULL, l)
+
 		static inline luaL_testudata(lua_State *L, int ud, const char *tname) {
 			void *p = lua_touserdata(L, ud);
 			if(p != NULL) {
