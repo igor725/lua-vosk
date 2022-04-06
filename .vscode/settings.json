@@ -4,6 +4,7 @@
 		"lauxlib.h": "c",
 		"core.h": "c",
 		"lualib.h": "c",
-		"luaspkmodel.h": "c"
+		"luaspkmodel.h": "c",
+		"backend.h": "c"
 	}
 }
