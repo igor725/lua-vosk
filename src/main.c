@@ -2,7 +2,6 @@
 #include "luahelp.h"
 #include "luamodel.h"
 #include "voskbridge.h"
-#include "luarecognizer.h"
 #include "luaspkmodel.h"
 
 static int loadvosk(lua_State *L) {
@@ -10,20 +9,15 @@ static int loadvosk(lua_State *L) {
 		size_t tabsize = lua_rawlen(L, 1), i;
 		for(i = 1; i <= tabsize; i++) {
 			lua_rawgeti(L, 1, i);
-			if(lua_isstring(L, -1) && luavosk_initlib(luaL_checkstring(L, -1))) {
-				lua_pop(L, i);
-				lua_pushboolean(L, 1);
-				return 1;
-			}
+			if(lua_isstring(L, -1) && luavosk_initlib(luaL_checkstring(L, -1)))
+				return 0;
 		}
-		lua_pop(L, tabsize);
-		lua_pushboolean(L, 0);
 	} else {
 		vstr libname = luaL_optstring(L, 1, LUAVOSK_LIB);
-		lua_pushboolean(L, luavosk_initlib(libname));
+		if(luavosk_initlib(libname)) return 0;
 	}
 
-	return 1;
+	return luaL_error(L, "Failed to initialize vosk library");
 }
 
 static int loglevel(lua_State *L) {
@@ -43,6 +37,11 @@ static int usegpu(lua_State *L) {
 		return 0;
 	}
 
+	if(vlib.init_gpu == NULL) {
+		luaL_error(L, "Failed to initialize GPU");
+		return 0;
+	}
+
 	vlib.init_gpu();
 	return 0;
 }
@@ -58,8 +57,9 @@ static luaL_Reg vosklib[] = {
 int luaopen_vosk(lua_State *L) {
 	lua_newtable(L);
 	luaL_setfuncs(L, vosklib, 0);
-	luavosk_spkmodel(L, -1);
-	luavosk_recognizer(L);
-	luavosk_model(L, -1);
+	luavosk_spkmodel(L);
+	lua_setfield(L, -2, "spkmodel");
+	luavosk_model(L);
+	lua_setfield(L, -2, "model");
 	return 1;
 }

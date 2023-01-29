@@ -30,3 +30,5 @@
 #	endif
 #endif
 #endif
+
+void luahelp_newmt(lua_State *L, vstr name, const luaL_Reg *funcs);

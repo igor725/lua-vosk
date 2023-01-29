@@ -17,5 +17,5 @@
 #endif
 
 typedef const char *vstr;
-typedef void *vrcg, *vmdl, *vsmdl;
+typedef void *vrcg, *vbrcg, *vmdl, *vbmdl, *vsmdl;
 #endif

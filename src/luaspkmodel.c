@@ -48,12 +48,11 @@ static int newspkmodel(lua_State *L) {
 	return 1;
 }
 
-void luavosk_spkmodel(lua_State *L, int idx) {
+void luavosk_spkmodel(lua_State *L) {
 	luaL_newmetatable(L, "vosk_spkmodel");
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
 	luaL_setfuncs(L, modelmeta, 0);
 	lua_pop(L, 1);
 	lua_pushcfunction(L, newspkmodel);
-	lua_setfield(L, idx - 1, "spkmodel");
 }
