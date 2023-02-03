@@ -27,6 +27,7 @@ struct VoskLib {
 	vrcg  (*recog_new)(vmdl, float);
 	void  (*recog_alts)(vrcg, int);
 	void  (*recog_words)(vrcg, int);
+	void  (*recog_pwords)(vrcg, int);
 	void  (*recog_nlsml)(vrcg, int);
 	int   (*recog_accept)(vrcg, const void *, int);
 	int   (*recog_accept_float)(vrcg, const float *, int);

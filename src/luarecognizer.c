@@ -72,11 +72,17 @@ static int meta_push(lua_State *L) {
 
 #ifdef LUAVOSK_HASJIT
 static int meta_pushptr(lua_State *L) {
-	lua_pushinteger(L, (lua_Integer)vlib.recog_accept(
-		lua_checkrecog(L, 1, 0),
-		*(const void **)lua_topointer(L, 2),
-		luaL_checkinteger(L, 3)
-	));
+	vrcg recog = lua_checkrecog(L, 1, 0);
+	const void *data = (const void *)lua_topointer(L, 2);
+	lua_Integer size = luaL_checkinteger(L, 3);
+	int ret;
+
+	if (lua_toboolean(L, 4))
+		ret = vlib.recog_accept_float(recog, (const float *)data, size);
+	else
+		ret = vlib.recog_accept(recog, data, size);
+
+	lua_pushinteger(L, ret);
 	return 1;
 }
 #endif
@@ -90,10 +96,16 @@ static int meta_alts(lua_State *L) {
 }
 
 static int meta_timings(lua_State *L) {
+	vrcg recog = lua_checkrecog(L, 1, 0);
 	vlib.recog_words(
-		lua_checkrecog(L, 1, 0),
+		recog,
 		lua_toboolean(L, 2)
 	);
+	if (!lua_isnone(L, 3))
+		vlib.recog_pwords(
+			recog,
+			lua_toboolean(L, 3)
+		);
 	return 0;
 }
 
@@ -182,7 +194,7 @@ static int bmeta_push(lua_State *L) {
 static int bmeta_pushptr(lua_State *L) {
 	vlib.brecog_accept(
 		lua_checkrecog(L, 1, 0),
-		*(const void **)lua_topointer(L, 2),
+		lua_topointer(L, 2),
 		luaL_checkinteger(L, 3)
 	);
 	return 0;

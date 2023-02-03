@@ -26,6 +26,7 @@ static vstr symlist[] = {
 	"+vosk_recognizer_new",
 	"+vosk_recognizer_set_max_alternatives",
 	"+vosk_recognizer_set_words",
+	"+vosk_recognizer_set_partial_words",
 	"-vosk_recognizer_set_nlsml",
 	"+vosk_recognizer_accept_waveform",
 	"+vosk_recognizer_accept_waveform_f",

@@ -13,3 +13,4 @@ else
 fi
 
 $CC -rdynamic -pipe -fPIC -shared src/*.c -Isrc $LUA_FLAGS -ldl -otest/vosk.so
+echo "Output binary: ./test/vosk.so"
