@@ -1,6 +1,6 @@
 #ifndef LUAVOSK_BRIDGE_H
 #define LUAVOSK_BRIDGE_H
-#include "core.h"
+#include "main.h"
 
 extern vstr const LUAVOSK_NL, LUAVOSK_NF;
 

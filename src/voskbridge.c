@@ -1,4 +1,4 @@
-#include "core.h"
+#include "main.h"
 #include "voskbridge.h"
 
 vstr const LUAVOSK_NL = "Please call vosk.init() first";
@@ -51,14 +51,14 @@ static vstr symlist[] = {
 #if defined(LUAVOSK_WINDOWS)
 #	define WIN32_LEAN_AND_MEAN
 #	include <windows.h>
-#	include "core.h"
+#	include "main.h"
 
 #	define __loadlib(_N) LoadLibraryA(_N)
 #	define __getsym(_L, _S) (void *)GetProcAddress(_L, _S)
 #	define __unloadlib(_L) (void)FreeLibrary(_L)
 #elif defined(LUAVOSK_UNIX)
 #	include <dlfcn.h>
-#	include "core.h"
+#	include "main.h"
 
 #	define __loadlib(_N) dlopen(_N, RTLD_LAZY)
 #	define __getsym(_L, _S) (void *)dlsym(lib, symn)

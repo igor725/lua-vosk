@@ -1,4 +1,4 @@
-#include "core.h"
+#include "main.h"
 #include "luahelp.h"
 #include "luamodel.h"
 #include "voskbridge.h"

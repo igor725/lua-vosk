@@ -2,3 +2,4 @@
 *.dll
 test/*
 !test/*.lua
+.vscode/settings.json
