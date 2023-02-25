@@ -3,6 +3,8 @@
 #include "main.h"
 
 extern vstr const LUAVOSK_NL, LUAVOSK_NF;
+#define VLIB_TEST_FUNC(FI) if (vlib.FI == NULL) return luaL_error(L, LUAVOSK_NF, #FI)
+#define VLIB_TEST_READINESS() if (vlib.lib == NULL) return luaL_error(L, LUAVOSK_NL)
 
 struct VoskLib {
 	void  *lib;
@@ -15,8 +17,8 @@ struct VoskLib {
 	void  (*model_free)(vmdl);
 
 	vbmdl (*bmodel_new)(vstr);
-	vbmdl (*bmodel_free)(vbmdl);
-	vbmdl (*bmodel_wait)(vbmdl);
+	void  (*bmodel_free)(vbmdl);
+	void  (*bmodel_wait)(vbmdl);
 
 	vsmdl (*spkmodel_new)(vstr);
 	void  (*spkmodel_free)(vsmdl);
@@ -45,10 +47,11 @@ struct VoskLib {
 	vstr  (*brecog_fresult)(vbrcg);
 	void  (*brecog_pop)(vbrcg);
 	int   (*brecog_pending)(vbrcg);
+
+	vstr _invalid;
 };
 
 extern struct VoskLib vlib;
 
 int luavosk_initlib(vstr lib);
-int luavosk_ready(void);
 #endif

@@ -16,10 +16,10 @@
 
 		static inline luaL_testudata(lua_State *L, int ud, const char *tname) {
 			void *p = lua_touserdata(L, ud);
-			if(p != NULL) {
-				if(lua_getmetatable(L, ud)) {
+			if (p != NULL) {
+				if (lua_getmetatable(L, ud)) {
 					lua_getfield(L, LUA_REGISTRYINDEX, tname);
-					if(lua_rawequal(L, -1, -2)) {
+					if (lua_rawequal(L, -1, -2)) {
 						lua_pop(L, 2);
 						return p;
 					}

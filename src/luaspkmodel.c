@@ -4,7 +4,7 @@
 
 vsmdl lua_checkspkmodel(lua_State *L, int idx) {
 	void **ud = luaL_checkudata(L, idx, "vosk_spkmodel");
-	if(*ud == NULL) {
+	if (*ud == NULL) {
 		luaL_error(L, "Something went wrong");
 		return NULL;
 	}
@@ -13,7 +13,7 @@ vsmdl lua_checkspkmodel(lua_State *L, int idx) {
 
 vsmdl lua_testspkmodel(lua_State *L, int idx) {
 	void **ud = luaL_testudata(L, idx, "vosk_spkmodel");
-	if(ud == NULL || *ud == NULL) return NULL;
+	if (ud == NULL || *ud == NULL) return NULL;
 	return (vsmdl)*ud;
 }
 
@@ -29,14 +29,11 @@ static const luaL_Reg modelmeta[] = {
 };
 
 static int newspkmodel(lua_State *L) {
-	if(!luavosk_ready()) {
-		luaL_error(L, LUAVOSK_NL);
-		return 0;
-	}
-
+	VLIB_TEST_READINESS();
+	VLIB_TEST_FUNC(spkmodel_new);
 	vstr modeln = luaL_checkstring(L, 1);
 	vsmdl modelp = vlib.spkmodel_new(modeln);
-	if(!modelp) {
+	if (!modelp) {
 		lua_pushnil(L);
 		return 1;
 	}

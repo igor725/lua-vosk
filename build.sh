@@ -12,5 +12,6 @@ else
 	exit 1
 fi
 
-$CC -rdynamic -pipe -fPIC -shared src/*.c -Isrc $LUA_FLAGS -ldl -otest/vosk.so
-echo "Output binary: ./test/vosk.so"
+if $CC -rdynamic -pipe -fPIC -shared src/*.c -Isrc $LUA_FLAGS -ldl -otest/vosk.so; then
+	echo "Output binary: ./test/vosk.so"
+fi

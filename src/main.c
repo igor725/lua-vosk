@@ -5,43 +5,32 @@
 #include "luaspkmodel.h"
 
 static int loadvosk(lua_State *L) {
-	if(lua_istable(L, 1)) {
+	if (lua_istable(L, 1)) {
 		size_t tabsize = lua_rawlen(L, 1), i;
-		for(i = 1; i <= tabsize; i++) {
+		for (i = 1; i <= tabsize; i++) {
 			lua_rawgeti(L, 1, i);
-			if(lua_isstring(L, -1) && luavosk_initlib(luaL_checkstring(L, -1)))
+			if (lua_isstring(L, -1) && luavosk_initlib(luaL_checkstring(L, -1)))
 				return 0;
 		}
 	} else {
 		vstr libname = luaL_optstring(L, 1, LUAVOSK_LIB);
-		if(luavosk_initlib(libname)) return 0;
+		if (luavosk_initlib(libname)) return 0;
 	}
 
-	return luaL_error(L, "Failed to initialize vosk library");
+	return luaL_error(L, "Failed to initialize vosk library: %s was not found", vlib._invalid);
 }
 
 static int loglevel(lua_State *L) {
-	if(!luavosk_ready()) {
-		luaL_error(L, LUAVOSK_NL);
-		return 0;
-	}
-
+	VLIB_TEST_READINESS();
+	VLIB_TEST_FUNC(set_loglevel);
 	int level = (int)luaL_checkinteger(L, 1);
 	vlib.set_loglevel(level);
 	return 0;
 }
 
 static int usegpu(lua_State *L) {
-	if(!luavosk_ready()) {
-		luaL_error(L, LUAVOSK_NL);
-		return 0;
-	}
-
-	if(vlib.init_gpu == NULL) {
-		luaL_error(L, "Failed to initialize GPU");
-		return 0;
-	}
-
+	VLIB_TEST_READINESS();
+	VLIB_TEST_FUNC(init_gpu);
 	vlib.init_gpu();
 	return 0;
 }

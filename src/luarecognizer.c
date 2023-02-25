@@ -7,7 +7,7 @@
 
 vrcg lua_checkrecog(lua_State *L, int idx, int batched) {
 	void **ud = luaL_checkudata(L, idx, batched ? "vosk_brecognizer" : "vosk_recognizer");
-	if(*ud == NULL) {
+	if (*ud == NULL) {
 		luaL_error(L, "Something went wrong");
 		return NULL;
 	}
@@ -19,10 +19,16 @@ int luavosk_newrecognizer(lua_State *L) {
 	vsmdl spkmd = lua_testspkmodel(L, 3);
 	float rate = (float)luaL_checknumber(L, 2);
 	void **ud = lua_newuserdata(L, sizeof(void *));
-	*ud = spkmd ? vlib.recog_newspk(model, rate, spkmd)
-				: vlib.recog_new(model, rate);
 
-	if(*ud == NULL)
+	if (vlib.recog_newspk != NULL)
+		*ud = spkmd ? vlib.recog_newspk(model, rate, spkmd) :
+					  vlib.recog_new(model, rate);
+	else {
+		*ud = vlib.recog_new(model, rate);
+		if (spkmd) vlib.recog_setspk(*ud, spkmd);
+	}
+
+	if (*ud == NULL)
 		return luaL_error(L, "Failed to create new recognizer");
 
 	luaL_setmetatable(L, "vosk_recognizer");
@@ -34,7 +40,7 @@ int luavosk_newbrecognizer(lua_State *L) {
 	float rate = (float)luaL_checknumber(L, 2);
 	void **ud = lua_newuserdata(L, sizeof(void *));
 
-	if((*ud = vlib.brecog_new(model, rate)) == NULL)
+	if ((*ud = vlib.brecog_new(model, rate)) == NULL)
 		return luaL_error(L, "Failed to create new batched recognizer");
 
 	luaL_setmetatable(L, "vosk_brecognizer");
@@ -49,11 +55,41 @@ static int meta_setspk(lua_State *L) {
 	return 0;
 }
 
+static void addfield(lua_State *L, luaL_Buffer *b, int i) {
+	lua_rawgeti(L, 2, i);
+	luaL_addchar(b, '"');
+	if (!lua_isstring(L, -1))
+		luaL_error(L, "invalid value (%s) at index %d in the grammar table",
+			luaL_typename(L, -1), i
+		);
+	luaL_addvalue(b);
+	luaL_addchar(b, '"');
+}
+
 static int meta_setgrm(lua_State *L) {
-	vlib.recog_setgrm(
-		lua_checkrecog(L, 1, 0),
-		luaL_checkstring(L, 2)
-	);
+	VLIB_TEST_FUNC(recog_setgrm);
+
+	vstr grm;
+	if (lua_isstring(L, 2))
+		grm = luaL_checkstring(L, 2);
+	else if (lua_istable(L, 2)) {
+		luaL_Buffer buf;
+		luaL_buffinit(L, &buf);
+		luaL_addchar(&buf, '[');
+		lua_pushnil(L);
+		int i, tlen = (int)lua_objlen(L, 2);
+		for (i = 1; i < tlen; i++) {
+			addfield(L, &buf, i);
+			luaL_addchar(&buf, ',');
+		}
+		if (i == tlen)
+			addfield(L, &buf, i);
+		luaL_addstring(&buf, "]");
+		luaL_pushresult(&buf);
+		grm = luaL_checkstring(L, -1);
+	}
+
+	vlib.recog_setgrm(lua_checkrecog(L, 1, 0), grm);
 	return 0;
 }
 
@@ -101,17 +137,18 @@ static int meta_timings(lua_State *L) {
 		recog,
 		lua_toboolean(L, 2)
 	);
-	if (!lua_isnone(L, 3))
+	if (!lua_isnoneornil(L, 3)) {
+		VLIB_TEST_FUNC(recog_pwords);
 		vlib.recog_pwords(
 			recog,
 			lua_toboolean(L, 3)
 		);
+	}
 	return 0;
 }
 
 static int meta_nlsml(lua_State *L) {
-	if (vlib.recog_nlsml != NULL)
-		return luaL_error(L, LUAVOSK_NF);
+	VLIB_TEST_FUNC(recog_nlsml);
 	vlib.recog_nlsml(
 		lua_checkrecog(L, 1, 0),
 		lua_toboolean(L, 2)
@@ -123,7 +160,7 @@ static int meta_result(lua_State *L) {
 	vstr out = vlib.recog_result(
 		lua_checkrecog(L, 1, 0)
 	);
-	if(out == NULL) lua_pushnil(L);
+	if (out == NULL) lua_pushnil(L);
 	else lua_pushstring(L, out);
 	return 1;
 }
@@ -132,7 +169,7 @@ static int meta_partial(lua_State *L) {
 	vstr out = vlib.recog_partial(
 		lua_checkrecog(L, 1, 0)
 	);
-	if(out == NULL) lua_pushnil(L);
+	if (out == NULL) lua_pushnil(L);
 	else lua_pushstring(L, out);
 	return 1;
 }
@@ -141,7 +178,7 @@ static int meta_final(lua_State *L) {
 	vstr out = vlib.recog_final(
 		lua_checkrecog(L, 1, 0)
 	);
-	if(out == NULL) lua_pushnil(L);
+	if (out == NULL) lua_pushnil(L);
 	else lua_pushstring(L, out);
 	return 1;
 }
@@ -181,6 +218,7 @@ static const luaL_Reg recogmeta[] = {
 };
 
 static int bmeta_push(lua_State *L) {
+	VLIB_TEST_FUNC(brecog_accept);
 	size_t len = 0;
 	const void *data = luaL_checklstring(L, 2, &len);
 	vlib.brecog_accept(
@@ -192,6 +230,7 @@ static int bmeta_push(lua_State *L) {
 
 #ifdef LUAVOSK_HASJIT
 static int bmeta_pushptr(lua_State *L) {
+	VLIB_TEST_FUNC(brecog_accept);
 	vlib.brecog_accept(
 		lua_checkrecog(L, 1, 0),
 		lua_topointer(L, 2),
@@ -202,8 +241,7 @@ static int bmeta_pushptr(lua_State *L) {
 #endif
 
 static int bmeta_nlsml(lua_State *L) {
-	if (vlib.brecog_nlsml != NULL)
-		return luaL_error(L, LUAVOSK_NF);
+	VLIB_TEST_FUNC(brecog_nlsml);
 	vlib.brecog_nlsml(
 		lua_checkrecog(L, 1, 0),
 		lua_toboolean(L, 2)
@@ -212,6 +250,7 @@ static int bmeta_nlsml(lua_State *L) {
 }
 
 static int bmeta_free(lua_State *L) {
+	VLIB_TEST_FUNC(brecog_free);
 	vlib.brecog_free(
 		lua_checkrecog(L, 1, 1)
 	);
@@ -219,6 +258,7 @@ static int bmeta_free(lua_State *L) {
 }
 
 static int bmeta_finish(lua_State *L) {
+	VLIB_TEST_FUNC(brecog_finish);
 	vlib.brecog_finish(
 		lua_checkrecog(L, 1, 1)
 	);
@@ -226,6 +266,7 @@ static int bmeta_finish(lua_State *L) {
 }
 
 static int bmeta_result(lua_State *L) {
+	VLIB_TEST_FUNC(brecog_fresult);
 	lua_pushstring(L, vlib.brecog_fresult(
 		lua_checkrecog(L, 1, 1)
 	));
@@ -233,6 +274,7 @@ static int bmeta_result(lua_State *L) {
 }
 
 static int bmeta_pop(lua_State *L) {
+	VLIB_TEST_FUNC(brecog_pop);
 	vlib.brecog_pop(
 		lua_checkrecog(L, 1, 1)
 	);
@@ -240,6 +282,7 @@ static int bmeta_pop(lua_State *L) {
 }
 
 static int bmeta_pending(lua_State *L) {
+	VLIB_TEST_FUNC(brecog_pending);
 	lua_pushinteger(L, (lua_Integer)vlib.brecog_pending(
 		lua_checkrecog(L, 1, 1)
 	));
@@ -263,6 +306,6 @@ static const luaL_Reg brecogmeta[] = {
 
 void luavosk_recognizer(lua_State *L) {
 	luahelp_newmt(L, "vosk_recognizer", recogmeta);
-	if(vlib.brecog_new)
+	if (vlib.brecog_new)
 		luahelp_newmt(L, "vosk_brecognizer", brecogmeta);
 }

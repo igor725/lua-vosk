@@ -2,11 +2,11 @@
 #include "voskbridge.h"
 
 vstr const LUAVOSK_NL = "Please call vosk.init() first";
-vstr const LUAVOSK_NF = "There is no such function in the loaded vosk library";
+vstr const LUAVOSK_NF = "There is no such function (vlib.%s) in the loaded vosk library";
 
 struct VoskLib vlib;
-static vstr symlist[] = {
-	"+vosk_set_log_level",
+static vstr const symlist[] = {
+	"-vosk_set_log_level",
 	"-vosk_gpu_init",
 
 	"+vosk_model_new",
@@ -26,7 +26,7 @@ static vstr symlist[] = {
 	"+vosk_recognizer_new",
 	"+vosk_recognizer_set_max_alternatives",
 	"+vosk_recognizer_set_words",
-	"+vosk_recognizer_set_partial_words",
+	"-vosk_recognizer_set_partial_words",
 	"-vosk_recognizer_set_nlsml",
 	"+vosk_recognizer_accept_waveform",
 	"+vosk_recognizer_accept_waveform_f",
@@ -45,7 +45,7 @@ static vstr symlist[] = {
 	"-vosk_batch_recognizer_pop",
 	"-vosk_batch_recognizer_get_pending_chunks",
 
-	NULL
+	NULL, NULL
 };
 
 #if defined(LUAVOSK_WINDOWS)
@@ -61,30 +61,36 @@ static vstr symlist[] = {
 #	include "main.h"
 
 #	define __loadlib(_N) dlopen(_N, RTLD_LAZY)
-#	define __getsym(_L, _S) (void *)dlsym(lib, symn)
+#	define __getsym(_L, _S) (void *)dlsym(_L, _S)
 #	define __unloadlib(_L) (void)dlclose(_L)
 #else
 #	error Unknown system
 #endif
 
 int luavosk_initlib(vstr lib) {
-	vlib.lib = __loadlib(lib);
-	if(vlib.lib == NULL) return 0;
+#	if defined(LUAVOSK_WINDOWS) && defined(LUAVOSK_DEBUG)
+		if (sizeof(symlist) != sizeof(vlib)) {
+			DebugBreak();
+			return 0;
+		}
+#	endif
 
-	for(int i = 0; symlist[i]; i++) {
+	vlib.lib = __loadlib(lib);
+	if (vlib.lib == NULL) {
+		vlib._invalid = lib;
+		return 0;
+	}
+
+	for (int i = 0; symlist[i]; i++) {
 		vstr name = symlist[i];
 		int critical = *name++ == '+';
-		if((((void **)&vlib)[i + 1] = __getsym(vlib.lib, name)) == NULL && critical) {
+		if ((((void **)&vlib)[i + 1] = __getsym(vlib.lib, name)) == NULL && critical) {
 			__unloadlib(vlib.lib);
+			vlib._invalid = name;
 			vlib.lib = NULL;
 			return 0;
 		}
 	}
 
-	vlib.set_loglevel(-1);
 	return 1;
-}
-
-int luavosk_ready(void) {
-	return vlib.lib != NULL;
 }
