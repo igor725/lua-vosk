@@ -106,7 +106,6 @@ static int meta_push(lua_State *L) {
 	return 1;
 }
 
-#ifdef LUAVOSK_HASJIT
 static int meta_pushptr(lua_State *L) {
 	vrcg recog = lua_checkrecog(L, 1, 0);
 	const void *data = (const void *)lua_topointer(L, 2);
@@ -121,7 +120,6 @@ static int meta_pushptr(lua_State *L) {
 	lua_pushinteger(L, ret);
 	return 1;
 }
-#endif
 
 static int meta_alts(lua_State *L) {
 	vlib.recog_alts(
@@ -200,9 +198,7 @@ static int meta_free(lua_State *L) {
 static const luaL_Reg recogmeta[] = {
 	{"setspk", meta_setspk},
 	{"push", meta_push},
-#	ifdef LUAVOSK_HASJIT
-		{"pushptr", meta_pushptr},
-#	endif
+	{"pushptr", meta_pushptr},
 	{"alts", meta_alts},
 	{"grammar", meta_setgrm},
 	{"timings", meta_timings},
@@ -228,7 +224,6 @@ static int bmeta_push(lua_State *L) {
 	return 0;
 }
 
-#ifdef LUAVOSK_HASJIT
 static int bmeta_pushptr(lua_State *L) {
 	VLIB_TEST_FUNC(brecog_accept);
 	vlib.brecog_accept(
@@ -238,7 +233,6 @@ static int bmeta_pushptr(lua_State *L) {
 	);
 	return 0;
 }
-#endif
 
 static int bmeta_nlsml(lua_State *L) {
 	VLIB_TEST_FUNC(brecog_nlsml);
@@ -291,9 +285,7 @@ static int bmeta_pending(lua_State *L) {
 
 static const luaL_Reg brecogmeta[] = {
 	{"push", bmeta_push},
-#	ifdef LUAVOSK_HASJIT
-		{"pushptr", bmeta_pushptr},
-#	endif
+	{"pushptr", bmeta_pushptr},
 	{"nlsml", bmeta_nlsml},
 	{"finish", bmeta_finish},
 	{"result", bmeta_result},

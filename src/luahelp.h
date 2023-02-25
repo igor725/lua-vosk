@@ -8,13 +8,11 @@
 #if LUA_VERSION_NUM == 501
 #	define lua_rawlen lua_objlen
 
-#	if defined(LUA_JITLIBNAME)
-#		define LUAVOSK_HASJIT
-#	else
+#	if !defined(LUA_JITLIBNAME)
 #		define luaL_setmetatable(L, tname) (luaL_getmetatable(L, tname), lua_setmetatable(L, -2))
 #		define luaL_setfuncs(L, l, nup) luaL_register(L, NULL, l)
 
-		static inline luaL_testudata(lua_State *L, int ud, const char *tname) {
+		static inline void *luaL_testudata(lua_State *L, int ud, const char *tname) {
 			void *p = lua_touserdata(L, ud);
 			if (p != NULL) {
 				if (lua_getmetatable(L, ud)) {
@@ -29,6 +27,6 @@
 		}
 #	endif
 #endif
-#endif
 
 void luahelp_newmt(lua_State *L, vstr name, const luaL_Reg *funcs);
+#endif

@@ -1,6 +1,6 @@
 local vosk = require('vosk')
 vosk.init(--[[ При отсутствии параметра, указывающего путь до библиотеки, используется libvosk.so, либо libvosk.dll]])
-vosk.loglevel(1)
+vosk.loglevel(0)
 local model = vosk.model('vosk-model-small-ru-0.22', false) -- Директория, в которой обитает нейромодель
 print('Model loaded', model)
 local recog = model:recognizer(16000.0) -- Создаём распознаватель с указанным битрейтом
