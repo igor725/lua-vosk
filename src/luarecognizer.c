@@ -31,7 +31,7 @@ int luavosk_newrecognizer(lua_State *L) {
 	}
 
 	if (*ud == NULL)
-		return luaL_error(L, "Failed to create new recognizer");
+		return luaL_error(L, "Failed to create a new recognizer");
 
 	luaL_setmetatable(L, metanm[0]);
 	return 1;
@@ -43,7 +43,7 @@ int luavosk_newbrecognizer(lua_State *L) {
 	void **ud = lua_newuserdata(L, sizeof(void *));
 
 	if ((*ud = vlib.brecog_new(model, rate)) == NULL)
-		return luaL_error(L, "Failed to create new batched recognizer");
+		return luaL_error(L, "Failed to create a new batched recognizer");
 
 	luaL_setmetatable(L, metanm[1]);
 	return 1;
@@ -71,7 +71,7 @@ static void addfield(lua_State *L, luaL_Buffer *b, int i) {
 static int meta_setgrm(lua_State *L) {
 	VLIB_TEST_FUNC(recog_setgrm);
 
-	vstr grm;
+	vstr grm = NULL;
 	if (lua_isstring(L, 2))
 		grm = luaL_checkstring(L, 2);
 	else if (lua_istable(L, 2)) {
