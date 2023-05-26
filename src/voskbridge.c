@@ -84,7 +84,7 @@ int luavosk_initlib(vstr lib) {
 	for (int i = 0; symlist[i]; i++) {
 		vstr name = symlist[i];
 		int critical = *name++ == '+';
-		if ((((void **)&vlib)[i + 1] = __getsym(vlib.lib, name)) == NULL && critical) {
+		if ((((void **)&vlib)[i + 1] = __getsym(vlib.lib, name)) == NULL && critical == 1) {
 			__unloadlib(vlib.lib);
 			vlib._invalid = name;
 			vlib.lib = NULL;

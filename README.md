@@ -11,7 +11,7 @@ This library uses [vosk-api](https://github.com/alphacep/vosk-api) to perform of
 - On Linux: Run `./build.sh`
 
 ## Getting started
-This guide assumes that you have a compiled lua-vosk, vosk library and a [pre-trained model](https://alphacephei.com/vosk/models) in the Lua script's root directory.
+This guide assumes that you have a compiled lua-vosk, vosk library and a [pre-trained model](https://alphacephei.com/vosk/models) in the Lua script's directory.
 
 First of all, we need to load the library and initialize the disired language model:
 ```lua
@@ -63,8 +63,9 @@ recog:alts(
 -- Returns nothing
 
 recog:grammar(
-	'["word1", "word2", "word3", "word..."]'
-) -- Configures Recognizer to use grammar
+	{'word1', 'word2', 'word3', 'word...'}
+	-- JSON array also can be used: '["word1", "word2", "word3", "word..."]'
+) -- Configures Recognizer to use specified grammar
 
 recog:timings(
 	true, -- Enables words with times in the output

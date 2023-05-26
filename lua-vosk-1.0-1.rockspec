@@ -13,8 +13,8 @@ description = {
 		It enables speech recognition for 20+ languages and dialects -
 		English, Indian English, German, French, Spanish, Portuguese,
 		Chinese, Russian, Turkish, Vietnamese, Italian, Dutch, Catalan,
-		Arabic, Greek, Farsi, Filipino, Ukrainian, Kazakh, Swedish, Japanese,
-		Esperanto, Hindi, Czech, Polish.
+		Arabic, Greek, Farsi, Filipino, Ukrainian, Kazakh, Swedish,
+		Japanese, Esperanto, Hindi, Czech, Polish.
 
 		This library implements easy to use interface for Vosk API.
 	]],

@@ -4,8 +4,10 @@
 #include "luarecognizer.h"
 #include "luaspkmodel.h"
 
+static const char *metanm[] = {"vosk_model", "vosk_bmodel"};
+
 vmdl lua_checkmodel(lua_State *L, int idx, int batched) {
-	void **ud = luaL_checkudata(L, idx, batched ? "vosk_bmodel" : "vosk_model");
+	void **ud = luaL_checkudata(L, idx, metanm[batched]);
 	if (*ud == NULL) {
 		luaL_error(L, "Something went wrong");
 		return NULL;
@@ -59,12 +61,12 @@ static int newmodel(lua_State *L) {
 	void **ud = lua_newuserdata(L, sizeof(void *));
 	if (lua_toboolean(L, 2)) {
 		if (vlib.bmodel_new == NULL || (*ud = vlib.bmodel_new(modeln)) == NULL)
-			return luaL_error(L, "Failed to initialize batched model");
-		luaL_setmetatable(L, "vosk_bmodel");
+			return luaL_error(L, "Failed to initialize a batched model");
+		luaL_setmetatable(L, metanm[1]);
 	} else {
 		if ((*ud = vlib.model_new(modeln)) == NULL)
-			return luaL_error(L, "Failed to initialize model");
-		luaL_setmetatable(L, "vosk_model");
+			return luaL_error(L, "Failed to initialize a model");
+		luaL_setmetatable(L, metanm[0]);
 	}
 
 	return 1;
@@ -72,8 +74,8 @@ static int newmodel(lua_State *L) {
 
 void luavosk_model(lua_State *L) {
 	luavosk_recognizer(L);
-	luahelp_newmt(L, "vosk_model", modelmeta);
+	luahelp_newmt(L, metanm[0], modelmeta);
 	if (vlib.bmodel_new)
-		luahelp_newmt(L, "vosk_bmodel", bmodelmeta);
+		luahelp_newmt(L, metanm[1], bmodelmeta);
 	lua_pushcfunction(L, newmodel);
 }

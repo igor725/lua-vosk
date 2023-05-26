@@ -5,8 +5,10 @@
 #include "luaspkmodel.h"
 #include "luarecognizer.h"
 
+static const char *metanm[] = {"vosk_recognizer", "vosk_brecognizer"};
+
 vrcg lua_checkrecog(lua_State *L, int idx, int batched) {
-	void **ud = luaL_checkudata(L, idx, batched ? "vosk_brecognizer" : "vosk_recognizer");
+	void **ud = luaL_checkudata(L, idx, metanm[batched]);
 	if (*ud == NULL) {
 		luaL_error(L, "Something went wrong");
 		return NULL;
@@ -31,7 +33,7 @@ int luavosk_newrecognizer(lua_State *L) {
 	if (*ud == NULL)
 		return luaL_error(L, "Failed to create new recognizer");
 
-	luaL_setmetatable(L, "vosk_recognizer");
+	luaL_setmetatable(L, metanm[0]);
 	return 1;
 }
 
@@ -43,7 +45,7 @@ int luavosk_newbrecognizer(lua_State *L) {
 	if ((*ud = vlib.brecog_new(model, rate)) == NULL)
 		return luaL_error(L, "Failed to create new batched recognizer");
 
-	luaL_setmetatable(L, "vosk_brecognizer");
+	luaL_setmetatable(L, metanm[1]);
 	return 1;
 }
 
@@ -297,7 +299,7 @@ static const luaL_Reg brecogmeta[] = {
 };
 
 void luavosk_recognizer(lua_State *L) {
-	luahelp_newmt(L, "vosk_recognizer", recogmeta);
+	luahelp_newmt(L, metanm[0], recogmeta);
 	if (vlib.brecog_new)
-		luahelp_newmt(L, "vosk_brecognizer", brecogmeta);
+		luahelp_newmt(L, metanm[1], brecogmeta);
 }
