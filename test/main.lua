@@ -1,3 +1,4 @@
+os.execute('chcp 65001>nul')
 local vosk = require('vosk')
 vosk.init(--[[ При отсутствии параметра, указывающего путь до библиотеки, используется libvosk.so, либо libvosk.dll]])
 vosk.loglevel(0)

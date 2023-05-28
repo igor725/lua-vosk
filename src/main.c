@@ -54,7 +54,7 @@ static int wavguess(lua_State *L) {
 		temp = 0;
 
 		if (fread(&temp, 2, 1, fw) != 1 || fseek(fw, temp, SEEK_CUR) != 0)
-			return luaL_error(L, "Something wrong with wave extension block");
+			return luaL_error(L, "Something wrong with the wave extension block");
 	}
 
 	while (1) {
