@@ -55,6 +55,16 @@ local model = vosk.model(
 --  * Please call vosk.init() first
 --  * Failed to initialize a [batched] model
 
+local spkmodel = vosk.spkmodel(
+	'vosk-model-spk-0.4'
+) -- Loads the specified speaker model
+-- Returns: Speaker model object
+-- Possible errors:
+-- * Lua type error
+--  * Please call vosk.init() first
+--  * There is no such function (vlib.spkmodel_new) in the loaded vosk library
+--  * Failed to initialize a speaker model
+
 local recog = model:recognizer(
 	  16000.0, -- Recognizer sample rate
 	  spkmdl, -- Speaker model, will be ignored for batched models [optional]

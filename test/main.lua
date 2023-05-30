@@ -10,9 +10,11 @@ local f = io.open('rec.wav', 'rb')
 if not f then io.stderr:write('Failed to open rec.wav') return end
 local nsamp, isfloat = vosk.wavguess(f) -- Переносим курсор файла к данным, узнаём семпл рейт и формат данных
 local model = vosk.model('vosk-model-small-ru-0.22', false) -- Директория, в которой обитает нейромодель
-print('Model loaded', model)
-local recog = model:recognizer(nsamp) -- Создаём распознаватель с указанным битрейтом
-print('Recognizer created', recog)
+print('Transcription model:', model)
+local spk = select(2, pcall(vosk.spkmodel, 'vosk-model-spk-0.40')) -- Модель для определения говорящего
+print('Speaker model:', spk)
+local recog = model:recognizer(nsamp, spk) -- Создаём распознаватель с указанным битрейтом
+print('Recognizer:', recog)
 
 local function txt(s)
 	return s:match('^{.+"text".+:.+"(.*)".+}$')
@@ -20,8 +22,8 @@ end
 
 local data
 repeat
-	-- Читаем файл блоками по 1024 байта
-	data = f:read(1024)
+	-- Читаем файл блоками по 4096 байт
+	data = f:read(4096)
 	if data and recog:push(data, isfloat) > 0 then -- Отправляем данные в распознаватель
 		local result = txt(recog:result()) -- Если recog:push() вернула true, читаем результат
 		if result and #result > 0 then io.write(result, ' ') end -- Показываем пользователю результат

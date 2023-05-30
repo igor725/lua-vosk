@@ -35,10 +35,8 @@ static int newspkmodel(lua_State *L) {
 	VLIB_TEST_FUNC(spkmodel_new);
 	vstr modeln = luaL_checkstring(L, 1);
 	vsmdl modelp = vlib.spkmodel_new(modeln);
-	if (!modelp) {
-		lua_pushnil(L);
-		return 1;
-	}
+	if (modelp == NULL)
+		return luaL_error(L, "Failed to initialize a speaker model");
 
 	void **ud = lua_newuserdata(L, sizeof(void *));
 	luaL_setmetatable(L, metanm);
