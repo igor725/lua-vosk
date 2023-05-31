@@ -60,8 +60,8 @@ static int meta_setspk(lua_State *L) {
 static void addfield(lua_State *L, luaL_Buffer *b, int i) {
 	lua_rawgeti(L, 2, i);
 	luaL_addchar(b, '"');
-	if (!lua_isstring(L, -1))
-		luaL_error(L, "invalid value (%s) at index %d in the grammar table",
+	if (lua_type(L, -1) != LUA_TSTRING)
+		return luaL_error(L, "Invalid value (%s) at index %d in the grammar table",
 			luaL_typename(L, -1), i
 		);
 	luaL_addvalue(b);
@@ -100,10 +100,12 @@ static int meta_push(lua_State *L) {
 	vrcg recog = lua_checkrecog(L, 1, 0);
 	const void *data = luaL_checklstring(L, 2, &len);
 	int ret;
+
 	if (lua_toboolean(L, 3))
 		ret = vlib.recog_accept_float(recog, data, (int)len);
 	else
 		ret = vlib.recog_accept(recog, data, (int)len);
+
 	lua_pushinteger(L, (lua_Integer)ret);
 	return 1;
 }
@@ -137,7 +139,7 @@ static int meta_timings(lua_State *L) {
 		recog,
 		lua_toboolean(L, 2)
 	);
-	if (!lua_isnoneornil(L, 3)) {
+	if (lua_type(L, 3) == LUA_TBOOLEAN) {
 		VLIB_TEST_FUNC(recog_pwords);
 		vlib.recog_pwords(
 			recog,
@@ -157,29 +159,23 @@ static int meta_nlsml(lua_State *L) {
 }
 
 static int meta_result(lua_State *L) {
-	vstr out = vlib.recog_result(
+	lua_pushstring(L, vlib.recog_result(
 		lua_checkrecog(L, 1, 0)
-	);
-	if (out == NULL) lua_pushnil(L);
-	else lua_pushstring(L, out);
+	));
 	return 1;
 }
 
 static int meta_partial(lua_State *L) {
-	vstr out = vlib.recog_partial(
+	lua_pushstring(L, vlib.recog_partial(
 		lua_checkrecog(L, 1, 0)
-	);
-	if (out == NULL) lua_pushnil(L);
-	else lua_pushstring(L, out);
+	));
 	return 1;
 }
 
 static int meta_final(lua_State *L) {
-	vstr out = vlib.recog_final(
+	lua_pushstring(L, vlib.recog_final(
 		lua_checkrecog(L, 1, 0)
-	);
-	if (out == NULL) lua_pushnil(L);
-	else lua_pushstring(L, out);
+	));
 	return 1;
 }
 

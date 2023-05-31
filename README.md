@@ -60,7 +60,7 @@ local spkmodel = vosk.spkmodel(
 ) -- Loads the specified speaker model
 -- Returns: Speaker model object
 -- Possible errors:
--- * Lua type error
+--  * Lua type error
 --  * Please call vosk.init() first
 --  * There is no such function (vlib.spkmodel_new) in the loaded vosk library
 --  * Failed to initialize a speaker model
@@ -73,6 +73,22 @@ local recog = model:recognizer(
 -- Possible errors:
 --  * Lua type error
 --  * Failed to create a new [batched] recognizer
+
+recog:setspk(
+	spkmdl
+) -- Adds speaker model to the Recognizer
+-- Returns nothing
+-- Possible errors:
+--  * Lua type error
+
+recog:grammar(
+	{'word1', 'word2', 'word3', 'word...'}
+	-- JSON array also can be used: '["word1", "word2", "word3", "word..."]'
+) -- Configures Recognizer to use specified grammar
+-- Returns nothing
+-- Possible errors:
+--  * Invalid value (...) at index ... in the grammar table
+--  * There is no such function (vlib.recog_setgrm) in the loaded vosk library
 
 local retcode = recog:push(
 	'<audio data in PCM 16-bit mono format as a Lua string>',
@@ -92,24 +108,12 @@ local retcode = recog:pushptr(
 	data, arrsize, false
 ) -- This function does the same thing as "push" but accepts pointers instead
 
-recog:setspk(
-	spkmdl
-) -- Adds speaker model to the Recognizer
--- Returns nothing
--- Possible errors:
---  * Lua type error
-
 recog:alts(
 	10
 ) -- Configures Recognizer to output n-best results
 -- Returns nothing
 -- Possible errors:
 --  * Lua type error
-
-recog:grammar(
-	{'word1', 'word2', 'word3', 'word...'}
-	-- JSON array also can be used: '["word1", "word2", "word3", "word..."]'
-) -- Configures Recognizer to use specified grammar
 
 recog:timings(
 	true, -- Enables words with times in the output
@@ -121,6 +125,7 @@ recog:nlsml(
 	true
 ) -- Enables NLSML output
 -- Returns nothing
+--  * There is no such function (vlib.recog_nlsml) in the loaded vosk library
 
 recog:result()
 -- Returns: speech recognition result
