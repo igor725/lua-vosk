@@ -60,10 +60,12 @@ static int meta_setspk(lua_State *L) {
 static void addfield(lua_State *L, luaL_Buffer *b, int i) {
 	lua_rawgeti(L, 2, i);
 	luaL_addchar(b, '"');
-	if (lua_type(L, -1) != LUA_TSTRING)
-		return luaL_error(L, "Invalid value (%s) at index %d in the grammar table",
+	if (lua_type(L, -1) != LUA_TSTRING) {
+		luaL_error(L, "Invalid value (%s) at index %d in the grammar table",
 			luaL_typename(L, -1), i
 		);
+		return;
+	}
 	luaL_addvalue(b);
 	luaL_addchar(b, '"');
 }

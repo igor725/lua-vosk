@@ -33,11 +33,11 @@ static int wavguess(lua_State *L) {
 	int temp, nfsz, nsamp;
 	short nfmt, nchs;
 
-	if (fread(&temp, 4, 1, fw) != 1 || temp != 'FFIR')
+	if (fread(&temp, 4, 1, fw) != 1 || temp != 0x46464952/*RIFF*/)
 		return luaL_error(L, "Not a wave file");
-	if (fseek(fw, 4, SEEK_CUR) != 0 || fread(&temp, 4, 1, fw) != 1 || temp != 'EVAW')
+	if (fseek(fw, 4, SEEK_CUR) != 0 || fread(&temp, 4, 1, fw) != 1 || temp != 0x45564157/*WAVE*/)
 		return luaL_error(L, "WAVE id was not found");
-	if (fread(&temp, 4, 1, fw) != 1 || temp != ' tmf')
+	if (fread(&temp, 4, 1, fw) != 1 || temp != 0x20746D66 /*fmt*/)
 		return luaL_error(L, "No format sub-chunk found");
 	if (fread(&nfsz, 4, 1, fw) != 1 || nfsz <= 0)
 		return luaL_error(L, "Invalid format sub-chunk size");
@@ -61,7 +61,7 @@ static int wavguess(lua_State *L) {
 		if(fread(&temp, 4, 1, fw) != 1 || fread(&nfsz, 4, 1, fw) != 1) // Реюзаем nfsz, т.к. дальше он не нужен
 			return luaL_error(L, "Failed to read chunk info");
 
-		if (temp == 'atad')
+		if (temp == 0x61746164)
 			break;
 
 		fseek(fw, nfsz, SEEK_CUR);
