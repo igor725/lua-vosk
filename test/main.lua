@@ -4,7 +4,7 @@ end
 
 local vosk = require('vosk')
 vosk.init(--[[ При отсутствии параметра, указывающего путь до библиотеки, используется libvosk.so, либо libvosk.dll]])
-vosk.loglevel(0)
+vosk.loglevel(-999)
 -- -- Открываем файл, который хотим перевести в текст
 local f = io.open('rec.wav', 'rb')
 if not f then io.stderr:write('Failed to open rec.wav') return end
@@ -17,7 +17,11 @@ local recog = model:recognizer(nsamp, spk) -- Создаём распознав�
 print('Recognizer:', recog)
 
 local function txt(s)
-	return s:match('^{.+"text".+:.+"(.*)".+}$')
+	if vosk.hasjson then
+		return s.text
+	else
+		return s:match('^{.+"text".+:.+"(.*)".+}$')
+	end
 end
 
 local data

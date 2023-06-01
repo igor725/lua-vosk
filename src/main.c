@@ -95,5 +95,12 @@ int luaopen_vosk(lua_State *L) {
 	lua_setfield(L, -2, "spkmodel");
 	luavosk_model(L);
 	lua_setfield(L, -2, "model");
+#	ifdef VOSK_ENABLE_JSON
+		lua_pushboolean(L, 1);
+#	else
+		lua_pushboolean(L, 0);
+#	endif
+	lua_setfield(L, -2, "hasjson");
+
 	return 1;
 }

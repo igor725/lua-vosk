@@ -160,25 +160,165 @@ static int meta_nlsml(lua_State *L) {
 	return 0;
 }
 
+#ifdef VOSK_ENABLE_JSON
+#define JSMN_STRICT
+#define JSMN_STATIC
+#include "jsmn.h"
+#include <malloc.h>
+
+static int cmp(vstr prim, vstr ex) {
+	while (*prim != '\0' && *ex != '\0')
+		if (*prim++ != *ex++) return 0;
+	return 1;
+}
+
+static int parseprimitive(lua_State *L, vstr prim, int size) {
+	if ((*prim >= '0' && *prim <= '9') || *prim == '-') {
+		lua_pushlstring(L, prim, size);
+		if (lua_isnumber(L, -1)) {
+			lua_pushnumber(L, lua_tonumber(L, -1));
+			lua_remove(L, -2);
+			return 1;
+		}
+
+		// Всё, что ниже сделано для совместимости и вряд ли будет выдано когда-нибудь vosk'ом
+	} else if (cmp(prim, "null")) {
+		lua_pushnil(L);
+		return 1;
+	} else if (cmp(prim, "true")) {
+		lua_pushboolean(L, 1);
+		return 1;
+	} else if (cmp(prim, "false")) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+
+	return -1;
+}
+
+static int parsetok(lua_State *L, vstr jstr, jsmntok_t *toks, int *ctok) {
+	int ret = 0;
+	jsmntok_t *tok = &toks[(*ctok)++], *ktok = NULL;
+
+	switch (tok->type) {
+		case JSMN_OBJECT:
+			lua_createtable(L, 0, tok->size);
+			for (int i = tok->size; i > 0; i--) {
+				ktok = &toks[(*ctok)++];
+				lua_pushlstring(L, jstr + ktok->start, ktok->end - ktok->start);
+				if ((ret = parsetok(L, jstr, toks, ctok)) < 0)
+					return ret;
+				if (ret != 1) luaL_error(L, "Something went wrong...");
+				lua_rawset(L, -3);
+			}
+			return 1;
+
+		case JSMN_ARRAY:
+			lua_createtable(L, tok->size, 0);
+			for (int i = tok->size; i > 0; i--) {
+				if ((ret = parsetok(L, jstr, toks, ctok)) < 0)
+					return ret;
+				if (ret != 1) luaL_error(L, "Something went wrong...");
+				lua_rawseti(L, -2, lua_rawlen(L, -2) + 1);
+			}
+			return 1;
+
+		case JSMN_STRING:
+			lua_pushlstring(L, jstr + tok->start, tok->end - tok->start);
+			return 1;
+
+		case JSMN_PRIMITIVE:
+			return parseprimitive(L, jstr + tok->start, tok->end - tok->start);
+	}
+
+	return -1;
+}
+
+static int jsmnprocess(lua_State *L, vstr jstr, size_t jstrlen, int r, jsmntok_t *toks) {
+	int ret = 0, ctok = 0;
+
+	do {
+		if ((ret = parsetok(L, jstr, toks, &ctok)) < 0) {
+			ctok--;
+			return luaL_error(L, "Failed to read JSON token #%d[%d: %d-%d]",
+				ctok, toks[ctok].type, toks[ctok].start, toks[ctok].end
+			);
+		}
+
+	} while (ctok < r);
+
+	return ret;
+}
+
+static int pushjson(lua_State *L, vstr jstr) {
+	// Если включить NLSML, вывод будет в формате XML, не используем парсер
+	if (*jstr != '{') {
+		lua_pushstring(L, jstr);
+		return 1;
+	}
+
+	int r = 0;
+	jsmn_parser p;
+	size_t jstrlen = 0;
+	static jsmntok_t t[64];
+	static jsmntok_t *jsmnmem = t;
+
+	for (ptrdiff_t i = 0; jstr[i] != '\0'; i++)
+		jstrlen++;
+
+	jsmn_init(&p);
+	if ((r = jsmn_parse(&p, jstr, jstrlen, NULL, 0)) < 0)
+		return luaL_error(L, "Failed to count JSON tokens");
+
+	if (r >= 64 && (jsmnmem = calloc(r, sizeof(jsmntok_t))) == NULL)
+		return luaL_error(L, "Failed to allocate memory for JSON tokens");
+
+	jsmn_init(&p);
+	if ((r = jsmn_parse(&p, jstr, jstrlen, jsmnmem, r)) > 0) {
+		int pret = jsmnprocess(L, jstr, jstrlen, r, jsmnmem);
+
+		if (jsmnmem != t) {
+			free(jsmnmem);
+			jsmnmem = t;
+		}
+
+		return pret;
+	}
+
+	if (jsmnmem != t) {
+		free(jsmnmem);
+		jsmnmem = t;
+	}
+
+	if (r < 0)
+		return luaL_error(L, "JSON parser error: %d", r);
+
+	lua_createtable(L, 0, 0);
+	return 1;
+}
+#else
+static int pushjson(lua_State *L, vstr jstr) {
+	lua_pushstring(L, jstr);
+	return 1;
+}
+#endif
+
 static int meta_result(lua_State *L) {
-	lua_pushstring(L, vlib.recog_result(
+	return pushjson(L, vlib.recog_result(
 		lua_checkrecog(L, 1, 0)
 	));
-	return 1;
 }
 
 static int meta_partial(lua_State *L) {
-	lua_pushstring(L, vlib.recog_partial(
+	return pushjson(L, vlib.recog_partial(
 		lua_checkrecog(L, 1, 0)
 	));
-	return 1;
 }
 
 static int meta_final(lua_State *L) {
-	lua_pushstring(L, vlib.recog_final(
+	return pushjson(L, vlib.recog_final(
 		lua_checkrecog(L, 1, 0)
 	));
-	return 1;
 }
 
 static int meta_reset(lua_State *L) {
@@ -261,10 +401,9 @@ static int bmeta_finish(lua_State *L) {
 
 static int bmeta_result(lua_State *L) {
 	VLIB_TEST_FUNC(brecog_fresult);
-	lua_pushstring(L, vlib.brecog_fresult(
+	return pushjson(L, vlib.brecog_fresult(
 		lua_checkrecog(L, 1, 1)
 	));
-	return 1;
 }
 
 static int bmeta_pop(lua_State *L) {
