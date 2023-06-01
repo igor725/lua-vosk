@@ -6,8 +6,8 @@
 
 static int loadvosk(lua_State *L) {
 	if (lua_istable(L, 1)) {
-		size_t tabsize = lua_rawlen(L, 1), i;
-		for (i = 1; i <= tabsize; i++) {
+		int tabsize = (int)lua_rawlen(L, 1);
+		for (int i = 1; i <= tabsize; i++) {
 			lua_rawgeti(L, 1, i);
 			if (lua_isstring(L, -1) && luavosk_initlib(luaL_checkstring(L, -1)))
 				return 0;
@@ -88,7 +88,7 @@ static luaL_Reg vosklib[] = {
 	{NULL, NULL}
 };
 
-int luaopen_vosk(lua_State *L) {
+int LUAVOSK_API luaopen_luavosk(lua_State *L) {
 	lua_newtable(L);
 	luaL_setfuncs(L, vosklib, 0);
 	luavosk_spkmodel(L);

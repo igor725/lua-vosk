@@ -119,9 +119,9 @@ static int meta_pushptr(lua_State *L) {
 	int ret;
 
 	if (lua_toboolean(L, 4))
-		ret = vlib.recog_accept_float(recog, (const float *)data, size);
+		ret = vlib.recog_accept_float(recog, (const float *)data, (int)size);
 	else
-		ret = vlib.recog_accept(recog, data, size);
+		ret = vlib.recog_accept(recog, data, (int)size);
 
 	lua_pushinteger(L, ret);
 	return 1;
@@ -130,7 +130,7 @@ static int meta_pushptr(lua_State *L) {
 static int meta_alts(lua_State *L) {
 	vlib.recog_alts(
 		lua_checkrecog(L, 1, 0),
-		luaL_checkinteger(L, 2)
+		(int)luaL_checkinteger(L, 2)
 	);
 	return 0;
 }
@@ -208,7 +208,6 @@ static int parsetok(lua_State *L, vstr jstr, jsmntok_t *toks, int *ctok) {
 				lua_pushlstring(L, jstr + ktok->start, ktok->end - ktok->start);
 				if ((ret = parsetok(L, jstr, toks, ctok)) < 0)
 					return ret;
-				if (ret != 1) luaL_error(L, "Something went wrong...");
 				lua_rawset(L, -3);
 			}
 			return 1;
@@ -218,8 +217,7 @@ static int parsetok(lua_State *L, vstr jstr, jsmntok_t *toks, int *ctok) {
 			for (int i = tok->size; i > 0; i--) {
 				if ((ret = parsetok(L, jstr, toks, ctok)) < 0)
 					return ret;
-				if (ret != 1) luaL_error(L, "Something went wrong...");
-				lua_rawseti(L, -2, lua_rawlen(L, -2) + 1);
+				lua_rawseti(L, -2, (int)lua_rawlen(L, -2) + 1);
 			}
 			return 1;
 
@@ -369,7 +367,7 @@ static int bmeta_pushptr(lua_State *L) {
 	vlib.brecog_accept(
 		lua_checkrecog(L, 1, 0),
 		lua_topointer(L, 2),
-		luaL_checkinteger(L, 3)
+		(int)luaL_checkinteger(L, 3)
 	);
 	return 0;
 }

@@ -29,7 +29,7 @@ dependencies = {
 build = {
 	type = 'builtin',
 	modules = {
-		vosk = {
+		luavosk = {
 			sources = {
 				'src/luamodel.c', 'src/luarecognizer.c',
 				'src/luaspkmodel.c', 'src/main.c',
@@ -37,8 +37,9 @@ build = {
 			},
 			platforms = {
 				win32 = {
-					modules = { vosk = { defines = {
-						-- 'LUAVOSK_DEBUG'
+					modules = { luavosk = { defines = {
+						-- 'LUAVOSK_DEBUG',
+						'VOSK_ENABLE_JSON'
 					}}}
 				}
 			}

@@ -2,15 +2,15 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Build",
-			"type": "shell",
-			"command": "build.bat",
-			"args": [],
+			"type": "cmake",
+			"label": "CMake: build",
+			"command": "build",
+			"targets": [
+				"ALL_BUILD"
+			],
 			"group": "build",
-			"presentation": {
-				"reveal": "silent"
-			},
-			"problemMatcher": "$msCompile"
+			"problemMatcher": [],
+			"detail": "Build lua-vosk"
 		}
 	]
 }

@@ -1,10 +1,4 @@
-*.obj
-*.dll
-*.def
-*.ilk
-*.lib
-*.pdb
-*.exp
 test/*
 !test/*.lua
 .vscode/settings.json
+/build/

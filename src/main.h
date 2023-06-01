@@ -7,9 +7,11 @@
 #	define LUAVOSK_WINDOWS
 #	define LUA_BUILD_AS_DLL
 #	define LUAVOSK_LIB "libvosk.dll"
+#	define LUAVOSK_API __declspec(dllexport)
 #else
 #	define LUAVOSK_UNIX
 #	define LUAVOSK_LIB "libvosk.so"
+#	define LUAVOSK_API
 #endif
 
 #ifndef NULL
