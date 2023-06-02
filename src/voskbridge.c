@@ -26,7 +26,7 @@ vstr const LUAVOSK_NF = "There is no such function (vlib.%s) in the loaded vosk 
 #endif
 
 int luavosk_initlib(vstr lib) {
-#	if defined(LUAVOSK_WINDOWS) && defined(LUAVOSK_DEBUG)
+#	if defined(LUAVOSK_WINDOWS)
 		if (sizeof(symlist) != sizeof(vlib)) {
 			DebugBreak();
 			return 0;

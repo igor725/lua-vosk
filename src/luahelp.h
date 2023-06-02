@@ -8,7 +8,7 @@
 #if LUA_VERSION_NUM == 501
 #	define lua_rawlen lua_objlen
 
-#	if !defined(LUA_JITLIBNAME)
+#	ifndef LUA_JITLIBNAME
 #		define luaL_setmetatable(L, tname) (luaL_getmetatable(L, tname), lua_setmetatable(L, -2))
 #		define luaL_setfuncs(L, l, nup) luaL_register(L, NULL, l)
 

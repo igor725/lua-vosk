@@ -38,7 +38,6 @@ build = {
 			platforms = {
 				win32 = {
 					modules = { luavosk = { defines = {
-						-- 'LUAVOSK_DEBUG',
 						'VOSK_ENABLE_JSON'
 					}}}
 				}
