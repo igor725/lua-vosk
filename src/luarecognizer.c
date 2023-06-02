@@ -81,7 +81,7 @@ static int meta_setgrm(lua_State *L) {
 		luaL_buffinit(L, &buf);
 		luaL_addchar(&buf, '[');
 		lua_pushnil(L);
-		int i, tlen = (int)lua_objlen(L, 2);
+		int i, tlen = (int)lua_rawlen(L, 2);
 		for (i = 1; i < tlen; i++) {
 			addfield(L, &buf, i);
 			luaL_addchar(&buf, ',');
