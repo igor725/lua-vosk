@@ -7,15 +7,30 @@ This library uses [vosk-api](https://github.com/alphacep/vosk-api) to perform of
 
 ## Building
 
-- On Windows: Run `./build.bat` in Microsoft Visual Studio Developer Command Prompt
-- On Linux: Run `./build.sh`
+Use CMake to build the project:
+
+- On Windows:
+```batch
+mkdir build
+cd build
+cmake ..
+msbuild luavosk.sln
+```
+
+- On Linux/WSL:
+```bash
+mkdir build
+cd build
+cmake ..
+make -j4
+```
 
 ## Getting started
 This guide assumes that you have a compiled lua-vosk, vosk library and a [pre-trained model](https://alphacephei.com/vosk/models) in the Lua script's directory.
 
 First of all, we need to load the library and initialize the disired language model:
 ```lua
-local vosk = require('vosk') -- Loads vosk.so/vosk.dll as Lua module
+local vosk = require('luavosk') -- Loads luavosk.so/luavosk.dll as Lua module
 -- Returns: lua-vosk library table
 
 --[[
