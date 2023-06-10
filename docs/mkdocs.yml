@@ -1,0 +1,48 @@
+site_name: Documentation for lua-vosk library
+site_author: igor725
+site_url: https://docs.igvx.ru/lua-vosk
+repo_url: https://github.com/igor725/lua-vosk
+copyright: Copyright (c) 2023 igor725
+
+theme:
+  name: material
+  features:
+    # - navigation.tabs
+    - header.autohide
+    - toc.integrate
+  palette:
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+      toc_depth: 2
+
+plugins:
+  - i18n:
+      default_language: en
+      material_alternate: true
+      languages:
+        en:
+          name: English
+          build: true
+        ru:
+          site_name: Документация по lua-vosk
+          name: Russian
+          build: true
+      nav_translations:
+        ru:
+          Classes: Классы
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true

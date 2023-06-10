@@ -50,6 +50,7 @@ static int bmeta_free(lua_State *L) {
 static const luaL_Reg bmodelmeta[] = {
 	{"recognizer", luavosk_newbrecognizer},
 	{"wait", bmeta_wait},
+
 	{"__gc", bmeta_free},
 
 	{NULL, NULL}

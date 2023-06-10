@@ -428,6 +428,7 @@ static const luaL_Reg brecogmeta[] = {
 	{"result", bmeta_result},
 	{"pop", bmeta_pop},
 	{"pending", bmeta_pending},
+
 	{"__gc", bmeta_free},
 
 	{NULL, NULL}

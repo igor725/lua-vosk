@@ -45,18 +45,14 @@ struct VoskLib {
 
 	void  (*set_loglevel)(int);
 	void  (*init_gpu)(void);
-
 	vmdl  (*model_new)(vstr);
 	int   (*model_find)(vmdl, vstr);
 	void  (*model_free)(vmdl);
-
 	vbmdl (*bmodel_new)(vstr);
 	void  (*bmodel_free)(vbmdl);
 	void  (*bmodel_wait)(vbmdl);
-
 	vsmdl (*spkmodel_new)(vstr);
 	void  (*spkmodel_free)(vsmdl);
-
 	vrcg  (*recog_newspk)(vmdl, float, vsmdl);
 	void  (*recog_setgrm)(vrcg, vstr);
 	void  (*recog_setspk)(vrcg, vsmdl);
