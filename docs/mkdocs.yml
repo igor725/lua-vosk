@@ -29,19 +29,17 @@ markdown_extensions:
 
 plugins:
   - i18n:
-      default_language: en
-      material_alternate: true
       languages:
-        en:
-          name: English
-          build: true
-        ru:
-          site_name: Документация по lua-vosk
-          name: Russian
-          build: true
-      nav_translations:
-        ru:
-          Classes: Классы
+          - locale: en
+            name: English
+            build: true
+            default: true
+          - locale: ru
+            site_name: Документация по lua-vosk
+            name: Russian
+            build: true
+            nav_translations:
+              Classes: Классы
   - minify:
       minify_html: true
       minify_js: true
