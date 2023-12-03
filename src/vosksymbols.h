@@ -5,7 +5,7 @@ static vstr const symlist[] = {
 	"-vosk_set_log_level",
 	"-vosk_gpu_init",
 	"+vosk_model_new",
-	"+vosk_model_find_word",
+	"-vosk_model_find_word",
 	"+vosk_model_free",
 	"-vosk_batch_model_new",
 	"-vosk_batch_model_free",
@@ -16,10 +16,12 @@ static vstr const symlist[] = {
 	"-vosk_recognizer_set_grm",
 	"-vosk_recognizer_set_spk_model",
 	"+vosk_recognizer_new",
-	"+vosk_recognizer_set_max_alternatives",
-	"+vosk_recognizer_set_words",
+	"-vosk_recognizer_set_max_alternatives",
+	"-vosk_recognizer_set_words",
 	"-vosk_recognizer_set_partial_words",
 	"-vosk_recognizer_set_nlsml",
+	"-vosk_recognizer_set_endpointer_mode",
+	"-vosk_recognizer_set_endpointer_delays",
 	"+vosk_recognizer_accept_waveform",
 	"+vosk_recognizer_accept_waveform_f",
 	"+vosk_recognizer_result",
@@ -61,8 +63,10 @@ struct VoskLib {
 	void  (*recog_words)(vrcg, int);
 	void  (*recog_pwords)(vrcg, int);
 	void  (*recog_nlsml)(vrcg, int);
+	void  (*recog_epmode)(vrcg, int);
+	void  (*recog_epdelays)(vrcg, float, float);
 	int   (*recog_accept)(vrcg, const void *, int);
-	int   (*recog_accept_float)(vrcg, const float *, int);
+	int   (*recog_acceptf)(vrcg, const float *, int);
 	vstr  (*recog_result)(vrcg);
 	vstr  (*recog_partial)(vrcg);
 	vstr  (*recog_final)(vrcg);

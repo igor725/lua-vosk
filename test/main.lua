@@ -1,6 +1,6 @@
 if package.cpath:find('%.dll') then
 	os.execute('chcp 65001>nul')
-	package.cpath = package.cpath .. ';../build/Debug/?.dll' .. ';../build/Release/?.dll'
+	package.cpath = package.cpath .. ';../build/Debug/?.dll;../build/Release/?.dll'
 else
 	package.cpath = package.cpath .. ';../build/?.so'
 end

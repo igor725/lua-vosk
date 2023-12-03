@@ -104,7 +104,7 @@ static int meta_push(lua_State *L) {
 	int ret;
 
 	if (lua_toboolean(L, 3))
-		ret = vlib.recog_accept_float(recog, data, (int)len);
+		ret = vlib.recog_acceptf(recog, data, (int)len);
 	else
 		ret = vlib.recog_accept(recog, data, (int)len);
 
@@ -119,7 +119,7 @@ static int meta_pushptr(lua_State *L) {
 	int ret;
 
 	if (lua_toboolean(L, 4))
-		ret = vlib.recog_accept_float(recog, (const float *)data, (int)size);
+		ret = vlib.recog_acceptf(recog, (const float *)data, (int)size);
 	else
 		ret = vlib.recog_accept(recog, data, (int)size);
 
@@ -128,6 +128,7 @@ static int meta_pushptr(lua_State *L) {
 }
 
 static int meta_alts(lua_State *L) {
+	VLIB_TEST_FUNC(recog_alts);
 	vlib.recog_alts(
 		lua_checkrecog(L, 1, 0),
 		(int)luaL_checkinteger(L, 2)
@@ -136,6 +137,7 @@ static int meta_alts(lua_State *L) {
 }
 
 static int meta_timings(lua_State *L) {
+	VLIB_TEST_FUNC(recog_words);
 	vrcg recog = lua_checkrecog(L, 1, 0);
 	vlib.recog_words(
 		recog,
@@ -156,6 +158,40 @@ static int meta_nlsml(lua_State *L) {
 	vlib.recog_nlsml(
 		lua_checkrecog(L, 1, 0),
 		lua_toboolean(L, 2)
+	);
+	return 0;
+}
+
+static int meta_epmode(lua_State *L) {
+	static const char *const en[] = {
+		"VOSK_EP_ANSWER_DEFAULT",
+		"VOSK_EP_ANSWER_SHORT",
+		"VOSK_EP_ANSWER_LONG",
+		"VOSK_EP_ANSWER_VERY_LONG",
+		NULL
+	};
+
+	VLIB_TEST_FUNC(recog_epmode);
+	int mode = 0;
+
+	if (lua_type(L, 2) == LUA_TSTRING) {
+		mode = luaL_checkoption(L, 2, NULL, en);
+	} else if (lua_type(L, 2) == LUA_TNUMBER) {
+		mode = (int)lua_tointeger(L, 2);
+		if (mode > 3) luaL_error(L, "Invalid enum integer: %d", mode);
+	}
+
+	vlib.recog_epmode(lua_checkrecog(L, 1, 0), mode);
+
+	return 0;
+}
+
+static int meta_epdelays(lua_State *L) {
+	VLIB_TEST_FUNC(recog_epdelays);
+	vlib.recog_epdelays(
+		lua_checkrecog(L, 1, 0),
+		(float)luaL_checknumber(L, 2),
+		(float)luaL_checknumber(L, 3)
 	);
 	return 0;
 }
@@ -341,6 +377,8 @@ static const luaL_Reg recogmeta[] = {
 	{"grammar", meta_setgrm},
 	{"timings", meta_timings},
 	{"nlsml", meta_nlsml},
+	{"epmode", meta_epmode},
+	{"epdelays", meta_epdelays},
 	{"result", meta_result},
 	{"partial", meta_partial},
 	{"final", meta_final},

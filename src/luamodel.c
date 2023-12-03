@@ -16,6 +16,7 @@ vmdl lua_checkmodel(lua_State *L, int idx, int batched) {
 }
 
 static int meta_find(lua_State *L) {
+	VLIB_TEST_FUNC(model_find);
 	lua_pushinteger(L, vlib.model_find(
 		lua_checkmodel(L, 1, 0),
 		luaL_checkstring(L, 2)

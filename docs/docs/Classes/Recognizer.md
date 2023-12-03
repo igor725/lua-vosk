@@ -138,6 +138,47 @@ recog:nlsml(true)
 
 ---
 
+## recog:epmode(mode)
+
+Set endpointer scaling factor
+
+```lua
+-- Possible values:
+-- "VOSK_EP_ANSWER_DEFAULT" or 0
+-- "VOSK_EP_ANSWER_SHORT" or 1
+-- "VOSK_EP_ANSWER_LONG" or 2
+-- "VOSK_EP_ANSWER_VERY_LONG" or 3
+
+recog:epmode('VOSK_EP_ANSWER_SHORT') or recog:epmode(1)
+```
+
+### Returns
+- Nothing
+
+### Possible errors
+- There is no such function (vlib.recog_epmode) in the loaded vosk library
+
+---
+
+## recog:epdelays(t_end, t_max)
+
+Set endpointer delays
+
+```lua
+-- t_end - timeout for stopping recognition in milliseconds (usually around 0.5 - 1.0)
+-- t_max - timeout for forcing utterance end in milliseconds (usually around 20.0 - 30.0)
+
+recog:epdelays(0.5, 20)
+```
+
+### Returns
+- Nothing
+
+### Possible errors
+- There is no such function (vlib.recog_epdelays) in the loaded vosk library
+
+---
+
 ## recog:result()
 
 Returns speech recognition result
