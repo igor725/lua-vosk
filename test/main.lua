@@ -12,12 +12,14 @@ vosk.loglevel(-999)
 local f = io.open('rec.wav', 'rb')
 if not f then io.stderr:write('Failed to open rec.wav') return end
 local nsamp, isfloat = vosk.wavguess(f) -- Переносим курсор файла к данным, узнаём семпл рейт и формат данных
+local mdinit_start = os.clock()
 local model = vosk.model('vosk-model-small-ru-0.22', false) -- Директория, в которой обитает нейромодель
 print('Transcription model:', model)
 local spk = select(2, pcall(vosk.spkmodel, 'vosk-model-spk-0.4')) -- Модель для определения говорящего
 print('Speaker model:', spk)
 local recog = model:recognizer(nsamp, spk) -- Создаём распознаватель с указанным битрейтом
 print('Recognizer:', recog)
+print('* MDINIT time: ', os.clock() - mdinit_start)
 
 local function txt(s)
 	if vosk.hasjson then
@@ -27,6 +29,7 @@ local function txt(s)
 	end
 end
 
+local ts_start = os.clock()
 local data
 repeat
 	-- Читаем файл блоками по 4096 байт
@@ -38,3 +41,4 @@ repeat
 until data == nil -- Повторяем, пока есть данные
 
 print(txt(recog:final())) -- Показываем остатки текста, если они есть
+print('* TS time: ', os.clock() - ts_start)
