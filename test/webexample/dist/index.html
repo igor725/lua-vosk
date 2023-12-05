@@ -10,14 +10,37 @@
 			});
 		</script>
 		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+			}
+
+			html, body {
+				height: 100%;
+			}
+
+			#wrap {
+				display: grid;
+				padding: 5px;
+				grid-template-rows: auto 1fr auto;
+				grid-template-columns: 1fr;
+				height: 100%;
+			}
+
 			#text {
 				box-sizing: border-box;
-				width: 500px;
-				height: 570px;
+				width: 100%;
+				height: 100%;
+			}
+
+			#buttons {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				grid-template-rows: 1fr;
 			}
 
 			input[type="button"] {
-				width: 250px;
+				width: 100%;
 			}
 
 			p {
@@ -26,9 +49,15 @@
 		</style>
 	</head>
 	<body>
-		<p>Current model: </p><p id="model"></p><br><br>
-		<textarea id="text" readonly placeholder="Transcribed text here"></textarea><br>
-		<input id="run" type="button" value="Start recording"/>
-		<input type="button" value="Clear field" onclick="document.getElementById('text').innerHTML = '';"/>
+		<div id="wrap">
+			<div>
+				<p>Current model: </p><p id="model"></p><br><br>
+			</div>
+			<textarea id="text" readonly placeholder="Transcribed text here"></textarea><br>
+			<div id="buttons">
+				<input id="run" type="button" value="Start recording"/>
+				<input type="button" value="Clear field" onclick="document.getElementById('text').innerHTML = '';"/>
+			</div>
+		</div>
 	</body>
 </html>
