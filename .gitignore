@@ -1,4 +1,6 @@
 test/*
 !test/*.lua
+!test/webexample
+test/webexample/*.dll
 .vscode/settings.json
 /build/

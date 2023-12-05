@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Example usage of lua-vosk</title>
+		<script>
+			window.addEventListener('load', _ => {
+				const scnod = document.createElement('script');
+				scnod.src = 'js/main.js'
+				document.head.appendChild(scnod);
+			});
+		</script>
+		<style>
+			#text {
+				box-sizing: border-box;
+				width: 500px;
+				height: 570px;
+			}
+
+			input[type="button"] {
+				width: 250px;
+			}
+
+			p {
+				display: inline;
+			}
+		</style>
+	</head>
+	<body>
+		<p>Current model: </p><p id="model"></p><br><br>
+		<textarea id="text" readonly placeholder="Transcribed text here"></textarea><br>
+		<input id="run" type="button" value="Start recording"/>
+		<input type="button" value="Clear field" onclick="document.getElementById('text').innerHTML = '';"/>
+	</body>
+</html>

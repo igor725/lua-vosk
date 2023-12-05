@@ -12,6 +12,18 @@
 			"environment": [],
 			"console": "integratedTerminal",
 			"preLaunchTask": "CMake: build"
+		},
+		{
+			"name": "(Windows) Launch web interactive",
+			"type": "cppvsdbg",
+			"request": "launch",
+			"program": "luajit.exe",
+			"args": ["main.lua"],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}/test/webexample",
+			"environment": [],
+			"console": "integratedTerminal",
+			"preLaunchTask": "CMake: build"
 		}
 	]
 }
