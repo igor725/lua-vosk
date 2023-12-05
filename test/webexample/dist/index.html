@@ -22,6 +22,7 @@
 			#wrap {
 				display: grid;
 				padding: 5px;
+				row-gap: 5px;
 				grid-template-rows: auto 1fr auto;
 				grid-template-columns: 1fr;
 				height: 100%;
@@ -29,6 +30,7 @@
 
 			#text {
 				box-sizing: border-box;
+				outline: none;
 				width: 100%;
 				height: 100%;
 			}
@@ -51,9 +53,9 @@
 	<body>
 		<div id="wrap">
 			<div>
-				<p>Current model: </p><p id="model"></p><br><br>
+				<p>Current model: </p><p id="model"></p>
 			</div>
-			<textarea id="text" readonly placeholder="Transcribed text here"></textarea><br>
+			<textarea id="text" readonly placeholder="Transcribed text here"></textarea>
 			<div id="buttons">
 				<input id="run" type="button" value="Start recording"/>
 				<input type="button" value="Clear field" onclick="document.getElementById('text').innerHTML = '';"/>
