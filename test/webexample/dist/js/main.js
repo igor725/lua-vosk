@@ -5,14 +5,30 @@
 			const textEl = document.getElementById('text');
 			const btnEl = document.getElementById('run');
 			const modelEl = document.getElementById('model');
+			let timer = null;
+
+			const num = (n) =>
+				n >= 10 ? Math.floor(n) : '0' + Math.floor(n);
 
 			btnEl.onclick = _ => {
 				if (mediaRec.state === 'recording') {
+					if (timer != null) {
+						clearInterval(timer);
+						timer = null;
+					}
+
 					btnEl.value = 'Transcribing...';
 					btnEl.disabled = 'disabled';
 					mediaRec.stop();
 				} else if (mediaRec.state === 'inactive') {
-					btnEl.value = 'Stop recording';
+					btnEl.value = 'Stop recording (00:00)';
+					if (timer === null) {
+						let time = 0;
+						timer = setInterval(() => {
+							btnEl.value = `Stop recording (${num(time / (1000 * 60))}:${num((time / 1000) % 60)})`;
+							time += 250;
+						}, 250);
+					}
 					mediaRec.start();
 				}
 			};
