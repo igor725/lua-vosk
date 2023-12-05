@@ -8,10 +8,11 @@
 
 			btnEl.onclick = _ => {
 				if (mediaRec.state === 'recording') {
-					btnEl.value = 'Start recording';
+					btnEl.value = 'Transcribing...';
+					btnEl.disabled = 'disabled';
 					mediaRec.stop();
 				} else if (mediaRec.state === 'inactive') {
-					btnEl.value = 'Stop';
+					btnEl.value = 'Stop recording';
 					mediaRec.start();
 				}
 			};
@@ -28,6 +29,9 @@
 									alert(res.error);
 									return;
 								}
+
+								btnEl.disabled = '';
+								btnEl.value = 'Start recording';
 								textEl.innerHTML += res.recognized + '\n';
 								modelEl.innerText = res.model;
 								console.log(`Recognition time: ${res.time} seconds`)
@@ -42,7 +46,8 @@
 			const xhr = new XMLHttpRequest();
 			xhr.onreadystatechange = _ => {
 				if (xhr.readyState == XMLHttpRequest.DONE) {
-					if (xhr.status === 200) modelEl.innerText = xhr.responseText;
+					if (xhr.status === 200)
+						modelEl.innerText = xhr.responseText;
 				}
 			};
 			xhr.open('GET', '/model');

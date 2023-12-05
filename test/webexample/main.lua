@@ -46,8 +46,10 @@ ffi.cdef[[
 local lib = ffi.load('sndfile')
 local socket = require('socket.core')
 local vosk = require('luavosk')
+
 vosk.init({'../libvosk.dll', '../libvosk.so', 'vosk'})
 vosk.loglevel(-999)
+
 io.write('Loading vosk model...')
 local model = vosk.model(current_model, false)
 print('done!')
@@ -111,11 +113,11 @@ local function doThings(cl, data, size)
 		ffi.cast('sf_vio_get_filelen', function() return size end),
 		ffi.cast('sf_vio_seek', function(offset, whence)
 			if whence == 0 then
-				pos = tonumber(offset)
+				pos = tonumber(offset) or 0
 			elseif whence == 1 then
-				pos = pos + tonumber(offset)
+				pos = pos + (tonumber(offset) or 0)
 			elseif whence == 2 then
-				pos = size - tonumber(offset)
+				pos = size - (tonumber(offset) or 0)
 			else
 				return 1
 			end
@@ -190,7 +192,10 @@ local function doThings(cl, data, size)
 end
 
 local function processClient(cl)
-	local met, path = recvLine(cl):match('^(%u+)%s(.-)%sHTTP/1.1$')
+	local reqline = recvLine(cl)
+	if reqline == nil then return end
+	local met, path, httpver = reqline:match('^(%u+)%s(.-)%s(HTTP/%d%.%d)$')
+	if httpver < 'HTTP/1.0' and httpver >= 'HTTP/2.0' then return end
 	local headers = {}
 
 	while true do
@@ -200,10 +205,12 @@ local function processClient(cl)
 		headers[key:lower()] = tonumber(value) or value
 	end
 
+	send(cl, httpver)
+
 	if met == 'GET' then
 		if path:byte(1, 1) == 47 then
 			if path == '/model' then
-				send(cl, 'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n')
+				send(cl, ' 200 OK\r\nContent-Type: text/plain\r\n\r\n')
 				send(cl, current_model)
 				return
 			end
@@ -215,7 +222,7 @@ local function processClient(cl)
 			local f = io.open('./dist/' .. path, 'rb')
 
 			if f ~= nil then
-				send(cl, ('HTTP/1.1 200 OK\r\nContent-Type: %s\r\n\r\n'):format(
+				send(cl, (' 200 OK\r\nContent-Type: %s\r\n\r\n'):format(
 					path:find('%.js$') ~= nil and 'text/javascript' or 'text/html'
 				))
 				send(cl, f:read('*a'))
@@ -225,7 +232,7 @@ local function processClient(cl)
 		end
 	elseif met == 'POST' then
 		if path == '/rec' then
-			send(cl, 'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n')
+			send(cl, ' 200 OK\r\nContent-Type: application/json\r\n')
 
 			local size = headers['content-length']
 			if size ~= nil and size > 0 then
@@ -257,7 +264,8 @@ local function processClient(cl)
 		end
 	end
 
-	send(cl, 'HTTP/1.1 404 Not Found\r\n\r\nNot found')
+	send(cl, ' 404 Not Found\r\n\r\nNot found: ')
+	send(cl, reqline)
 end
 jit.off(doThings, true)
 
