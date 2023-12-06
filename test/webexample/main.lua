@@ -1,6 +1,6 @@
-local current_model = '../vosk-model-ru-0.42'
--- local current_model = '../vosk-model-small-en-us-0.15'
--- local current_model = '../vosk-model-small-ru-0.22'
+local modelspath = '..'
+local loadedmodels = {}
+local availmodels
 
 if package.cpath:find('%.dll') then
 	os.execute('chcp 65001>nul')
@@ -50,9 +50,9 @@ local vosk = require('luavosk')
 vosk.init({'../libvosk.dll', '../libvosk.so', 'vosk'})
 vosk.loglevel(-999)
 
-io.write('Loading vosk model...')
-local model = vosk.model(current_model, false)
-print('done!')
+-- io.write('Loading vosk model...')
+-- local model = vosk.model(current_model, false)
+-- print('done!')
 
 if ffi.string(lib.sf_version_string()) < 'libsndfile-1.0.29' then
 	print('Warning! This version of libsndfile won\'t read ogg/opus!')
@@ -65,6 +65,41 @@ local sv = socket.tcp()
 sv:settimeout(0)
 sv:bind('0.0.0.0', 8088)
 sv:listen()
+
+local function scanModels()
+	local mt = {}
+
+	if jit.os == 'Windows' then
+		local p = io.popen('dir /b /ad "' .. modelspath .. '"', 'r')
+
+		if p ~= nil then
+			for li in p:lines() do
+				local mdpath = modelspath .. '/' .. li
+				local f = io.open(mdpath .. '/am/final.mdl', 'r')
+				if f ~= nil then
+					table.insert(mt, mdpath)
+					f:close()
+				end
+			end
+			p:close()
+		end
+	else
+		local p = io.popen('find ' .. modelspath .. ' -type d -exec test -f {}/am/final.mdl \\; -print', 'r')
+
+		if p ~= nil then
+			for li in p:lines() do
+				table.insert(mt, li)
+			end
+			p:close()
+		end
+	end
+
+
+
+	return mt
+end
+
+availmodels = scanModels()
 
 local function recvLine(cl)
 	local data = ''
@@ -106,10 +141,10 @@ local function send(cl, data)
 	return false
 end
 
-local function doThings(cl, data, size)
+local function doThings(cl, data, size, mdi)
 	local pos = 0
 
-	local funcs = {
+	local funcs = { -- TOOD: Is it safe to cast aunnamed function to callback?
 		ffi.cast('sf_vio_get_filelen', function() return size end),
 		ffi.cast('sf_vio_seek', function(offset, whence)
 			if whence == 0 then
@@ -144,14 +179,26 @@ local function doThings(cl, data, size)
 
 	if sff ~= nil then
 		if sfi.channels > 1 then
-			error('Sound file must be mono')
+			send(cl, '\r\n{"error": "Sound file must be mono"}')
+			return
 		end
 
+		local model = loadedmodels[mdi]
+		if model == nil then
+			local succ, md = pcall(vosk.model, availmodels[mdi], false)
+			if succ and md ~= nil then
+				loadedmodels[mdi] = md
+				model = md
+			else
+				send(cl, '\r\n{"error": "Failed to load specified vosk model"}')
+				return
+			end
+		end
 		local fsamp = ffi.new('short[128]')
 		local recog = model:recognizer(sfi.samplerate)
 		local recogtxt = ''
 		local start = os.clock()
-		local wait = os.clock()
+		local wait = start
 		local res
 
 		while true do
@@ -163,9 +210,10 @@ local function doThings(cl, data, size)
 				recogtxt = recogtxt .. res.text .. ' '
 			end
 
-			if os.clock() - wait > 1 then -- Не даём сопрограмме занимать поток дольше 1 секунды
+			local curr = os.clock()
+			if curr - wait > 1 then -- Не даём сопрограмме занимать поток дольше 1 секунды
 				coroutine.yield()
-				wait = os.clock()
+				wait = curr
 			end
 		end
 
@@ -175,8 +223,6 @@ local function doThings(cl, data, size)
 
 		send(cl, '\r\n{"recognized": "')
 		send(cl, recogtxt)
-		send(cl, '", "model": "')
-		send(cl, current_model)
 		send(cl, '", "time": ')
 		send(cl, ('%.3f'):format(os.clock() - start))
 		send(cl, '}')
@@ -216,9 +262,16 @@ local function processClient(cl)
 
 	if met == 'GET' then
 		if path:byte(1, 1) == 47 then
-			if path == '/model' then
-				send(cl, ' 200 OK\r\nContent-Type: text/plain\r\n\r\n')
-				send(cl, current_model)
+			if path == '/models' then
+				send(cl, ' 200 OK\r\nContent-Type: application/json\r\n\r\n[')
+				for i = 1, #availmodels do
+					if i > 1 then send(cl, ', ') end
+					local mdl = availmodels[i]
+					local ens = tostring(loadedmodels[i] ~= nil)
+					send(cl, '["' .. mdl .. '", ' .. ens .. ']')
+					-- send(cl, '"' .. mdl .. '": {"enabled": ' .. ens .. ', "id": ' .. i .. '}')
+				end
+				send(cl, ']')
 				return
 			end
 
@@ -240,6 +293,16 @@ local function processClient(cl)
 	elseif met == 'POST' then
 		if path == '/rec' then
 			send(cl, ' 200 OK\r\nContent-Type: application/json\r\n')
+
+			local mdi = headers['model']
+
+			if type(mdi) ~= 'number' then
+				send(cl, ('Content-Length: 34\r\n\r\n{"error": "No model header found"}'))
+				return
+			elseif mdi < 0 or mdi >= #availmodels then
+				send(cl, ('Content-Length: 32\r\n\r\n{"error": "Invalid model index"}'))
+				return
+			end
 
 			local size = headers['content-length']
 			if size ~= nil and size > 0 then
@@ -264,11 +327,44 @@ local function processClient(cl)
 					dleft = dleft - #drecv
 				end
 
-				doThings(cl, data, size)
+				doThings(cl, data, size, mdi + 1)
 			end
 
 			collectgarbage()
 			return
+		end
+	elseif met == 'PUT' then
+		local model = headers['model']
+
+		if type(model) == 'number' and model >= 0 and model <= #availmodels then
+			model = model + 1
+			local mdname = availmodels[model]
+
+			if path == '/on' then
+				if loadedmodels[model] == nil then
+					local succ, md = pcall(vosk.model, mdname, false)
+					if succ then loadedmodels[model] = md end
+					send(cl, ' 200 OK\r\nContent-Type: application/json\r\n\r\n{"ok": ')
+					send(cl, tostring(succ))
+					if not succ then
+						send(cl, ', "error": "')
+						send(cl, tostring(md))
+						send(cl, '"')
+					end
+					send(cl, '}')
+					collectgarbage()
+					return
+				end
+			elseif path == '/off' then
+				if loadedmodels[model] ~= nil then
+					loadedmodels[model] = nil
+					send(cl, ' 200 OK\r\nContent-Type: application/json\r\n\r\n{"ok": true}')
+					collectgarbage()
+					return
+				end
+			end
+
+			collectgarbage()
 		end
 	else
 		send(cl, ' 400 Bad Request\r\n\r\nBad request!')
