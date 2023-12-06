@@ -193,8 +193,15 @@ end
 
 local function processClient(cl)
 	local reqline = recvLine(cl)
-	if reqline == nil then return end
+	if reqline == nil or #reqline > 512 then
+		send(cl, 'HTTP/1.1 400 Bad Request\r\n\r\nRequest exceeded the maximum size')
+		return
+	end
 	local met, path, httpver = reqline:match('^(%u+)%s(.-)%s(HTTP/%d%.%d)$')
+	if met == nil then
+		send(cl, 'HTTP/1.1 400 Bad Request\r\n\r\nRequest is malformed')
+		return
+	end
 	if httpver < 'HTTP/1.0' and httpver >= 'HTTP/2.0' then return end
 	local headers = {}
 
@@ -260,8 +267,12 @@ local function processClient(cl)
 				doThings(cl, data, size)
 			end
 
+			collectgarbage()
 			return
 		end
+	else
+		send(cl, ' 400 Bad Request\r\n\r\nBad request!')
+		return
 	end
 
 	send(cl, ' 404 Not Found\r\n\r\nNot found: ')
@@ -280,7 +291,6 @@ while true do
 				if not succ then
 					send(cl, '\r\n' .. tostring(err))
 				end
-				collectgarbage()
 				cl:close()
 			end))
 		end

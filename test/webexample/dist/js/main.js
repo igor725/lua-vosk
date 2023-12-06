@@ -1,14 +1,14 @@
 (() => {
 	if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-		navigator.mediaDevices.getUserMedia({audio: {channelCount: 1}}).then((strm) => {
+		const num = (n) =>
+			n >= 10 ? Math.floor(n) : '0' + Math.floor(n);
+
+		const handler = (strm, autorun = false) => {
 			const mediaRec = new MediaRecorder(strm, {mimeType: 'audio/ogg; codecs=opus'});
 			const textEl = document.getElementById('text');
 			const btnEl = document.getElementById('run');
 			const modelEl = document.getElementById('model');
 			let timer = null;
-
-			const num = (n) =>
-				n >= 10 ? Math.floor(n) : '0' + Math.floor(n);
 
 			btnEl.onclick = _ => {
 				if (mediaRec.state === 'recording') {
@@ -21,6 +21,15 @@
 					btnEl.disabled = 'disabled';
 					mediaRec.stop();
 				} else if (mediaRec.state === 'inactive') {
+					try {
+						mediaRec.start();
+					} catch(err) {
+						if (confirm('Failed to run recoring, try again?')) {
+							run(true);
+						}
+						return;
+					}
+
 					btnEl.value = 'Stop recording (00:00)';
 					if (timer === null) {
 						let time = 0;
@@ -29,7 +38,6 @@
 							time += 250;
 						}, 250);
 					}
-					mediaRec.start();
 				}
 			};
 
@@ -55,7 +63,7 @@
 						}
 					};
 					xhr.open('POST', '/rec');
-					xhr.send(new Uint8Array(arraybuf));
+					xhr.send(arraybuf);
 				});
 			};
 
@@ -68,9 +76,17 @@
 			};
 			xhr.open('GET', '/model');
 			xhr.send();
-		}).catch((err) => {
-			alert(`Error occured in getUserMedia call: ${err}`);
-		});
+
+			if (autorun) btnEl.click();
+		};
+
+		const run = (autorun = false) => {
+			navigator.mediaDevices.getUserMedia({audio: {channelCount: 1}}).then(strm => handler(strm, autorun)).catch((err) => {
+				alert(`Error occured in getUserMedia call: ${err}`);
+			});
+		};
+
+		run();
 	} else {
 		alert('No getUserMedia support is present in your browser');
 	}
