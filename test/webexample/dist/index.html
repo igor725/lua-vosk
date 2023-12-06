@@ -24,7 +24,7 @@
 				display: grid;
 				padding: 5px;
 				row-gap: 5px;
-				grid-template-rows: auto 1fr auto;
+				grid-template-rows: auto auto 1fr auto;
 				grid-template-columns: 1fr;
 				height: 100%;
 			}
@@ -46,16 +46,23 @@
 				width: 100%;
 			}
 
-			p {
+			#currmdl > *{
 				display: inline;
+				margin: 5px;
+			}
+
+			#ldmdls > * {
+				display: inline;
+				margin-left: 10px;
 			}
 		</style>
 	</head>
 	<body>
 		<div id="wrap">
-			<div>
-				<p>Current model: </p><p id="model"></p>
+			<div id="currmdl">
+				<p>Current model:</p><select id="currmdlsel"></select>
 			</div>
+			<div id="ldmdls"></div>
 			<textarea id="text" readonly placeholder="Transcribed text here"></textarea>
 			<div id="buttons">
 				<input id="run" type="button" value="Start recording"/>

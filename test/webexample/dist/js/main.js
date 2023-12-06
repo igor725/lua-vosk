@@ -7,7 +7,8 @@
 			const mediaRec = new MediaRecorder(strm, {mimeType: 'audio/ogg; codecs=opus'});
 			const textEl = document.getElementById('text');
 			const btnEl = document.getElementById('run');
-			const modelEl = document.getElementById('model');
+			const currmdlEl = document.getElementById('currmdlsel');
+			const ldmdlEl = document.getElementById('ldmdls');
 			let timer = null;
 
 			btnEl.onclick = _ => {
@@ -47,6 +48,9 @@
 					xhr.responseType = 'json';
 					xhr.onreadystatechange = _ => {
 						if (xhr.readyState === XMLHttpRequest.DONE) {
+							btnEl.disabled = '';
+							btnEl.value = 'Start recording';
+
 							const res = xhr.response;
 							if (xhr.status === 200 && res && typeof res === 'object') {
 								if (res.error !== undefined) {
@@ -54,28 +58,77 @@
 									return;
 								}
 
-								btnEl.disabled = '';
-								btnEl.value = 'Start recording';
 								textEl.innerHTML += res.recognized + '\n';
-								modelEl.innerText = res.model;
 								console.log(`Recognition time: ${res.time} seconds`)
 							}
 						}
 					};
 					xhr.open('POST', '/rec');
+					xhr.setRequestHeader('Model', currmdlEl.selectedOptions[0].dataset.id);
 					xhr.send(arraybuf);
 				});
 			};
 
 			const xhr = new XMLHttpRequest();
+			xhr.responseType = 'json';
 			xhr.onreadystatechange = _ => {
 				if (xhr.readyState == XMLHttpRequest.DONE) {
-					if (xhr.status === 200)
-						modelEl.innerText = xhr.responseText;
+					const res = xhr.response;
+					if (xhr.status === 200 && res && typeof res === 'object') {
+						const els = [], oels = [];
+						for (let i = 0; i < res.length; ++i) {
+							const info = res[i];
+							if (i % 4 == 3) els.push('<br>');
+							els.push(
+								`<div><input type="checkbox" id="cbm_${i}" data-id="${i}" ${info[1] ? 'checked' : ''}> <label for="cbm_${i}">${info[0]}</label></div>`
+							);
+							if (info[1]) oels.push(`<option data-id="${i}">${info[0]}</option>`)
+						}
+						ldmdlEl.innerHTML = els.join('');
+						currmdlEl.innerHTML = oels.join('');
+						btnEl.disabled = currmdlEl.selectedIndex < 0 ? 'disabled' : '';
+					}
 				}
 			};
-			xhr.open('GET', '/model');
+			xhr.open('GET', '/models');
 			xhr.send();
+
+			ldmdlEl.addEventListener('click', ({target}) => {
+				if (target.tagName === 'INPUT') {
+					const boxes = ldmdlEl.querySelectorAll('input[type="checkbox"]')
+					for (let i = 0; i < boxes.length; ++i) boxes[i].disabled = 'disabled';
+					btnEl.disabled = 'disabled';
+
+					const xhre = new XMLHttpRequest();
+					xhre.responseType = 'json';
+					xhre.onreadystatechange = _ => {
+						if (xhre.readyState == XMLHttpRequest.DONE) {
+							const res = xhre.response;
+							if ((!res || typeof res != 'object') || !res.ok) {
+								target.checked = !target.checked;
+								alert(res ? res.error : 'Unexpected error');
+							}
+
+							const els = [];
+							for (let i = 0; i < boxes.length; ++i) {
+								const cb = boxes[i];
+								cb.disabled = '';
+								if (cb.checked) {
+									const name = cb.nextElementSibling.innerText;
+									els.push(
+										`<option data-id="${cb.dataset.id}">${name}</option>`
+									);
+								}
+							}
+							currmdlEl.innerHTML = els.join('');
+							btnEl.disabled = currmdlEl.selectedIndex < 0 ? 'disabled' : '';
+						}
+					};
+					xhre.open('PUT', target.checked ? '/on' : '/off');
+					xhre.setRequestHeader('Model', target.dataset.id);
+					xhre.send();
+				}
+			}, true);
 
 			if (autorun) btnEl.click();
 		};
