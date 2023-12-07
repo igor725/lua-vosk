@@ -4,3 +4,4 @@ test/*
 test/webexample/*.dll
 .vscode/settings.json
 /build/
+misc/out/
