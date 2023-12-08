@@ -1,0 +1,67 @@
+name: build
+
+on:
+  pull_request:
+    types: [opened, reopened]
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+
+    name: Building library
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout lua-vosk
+      uses: actions/checkout@v3
+      with:
+        path: luavosk
+
+    - name: Minor preparations
+      run: sudo apt install gcc-aarch64-linux-gnu mingw-w64
+
+    - name: Get previous tag
+      id: prevtag
+      shell: bash
+      run: |
+        echo "tag=$(GIT.EXE describe --abbrev=0 --tags ${{ github.ref_name }}^)" >> $GITHUB_OUTPUT
+
+    - name: Init LuaJIT
+      working-directory: luavosk/misc
+      run: ./init.sh
+
+    - name: Linux x64 build
+      working-directory: luavosk/misc
+      run: ./build-linux-x64.sh
+
+    - name: Linux arm64 build
+      working-directory: luavosk/misc
+      run: ./build-linux-arm64.sh
+
+    - name: Windows x64 build
+      working-directory: luavosk/misc
+      run: ./build-win-x64.sh
+
+    - name: Zip it up
+      working-directory: luavosk/misc/out
+      run: |
+        zip -q windows-x64.zip win-amd64/luavosk.dll
+        zip -q linux-arm64.zip linux-arm64/luavosk.so
+        zip -q linux-x64.zip linux-amd64/luavosk.so
+        cd ../../
+        zip -q -u -r ./misc/out/windows-x64.zip test/ README.md LICENSE
+        zip -q -u -r ./misc/out/linux-arm64.zip test/ README.md LICENSE
+        zip -q -u -r ./misc/out/linux-x64.zip test/ README.md LICENSE
+
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        prerelease: true
+        name: Pre-release ${{ github.ref_name }}
+        body: "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ steps.prevtag.outputs.tag }}...${{ github.ref_name }}"
+        files: |
+          ./luavosk/misc/out/windows-x64.zip
+          ./luavosk/misc/out/linux-arm64.zip
+          ./luavosk/misc/out/linux-x64.zip
