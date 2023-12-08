@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 MAINDIR=$(dirname `readlink -f "$0"`)
 cd "$MAINDIR/luajit"
 make clean
