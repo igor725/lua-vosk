@@ -17,7 +17,6 @@ jobs:
     - name: Checkout lua-vosk
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0
         path: luavosk
 
     - name: Minor preparations
@@ -63,6 +62,6 @@ jobs:
         name: Pre-release ${{ github.ref_name }}
         body: "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ steps.prevtag.outputs.tag }}...${{ github.ref_name }}"
         files: |
-          ./luavosk/misc/windows-x64.zip
-          ./luavosk/misc/linux-arm64.zip
-          ./luavosk/misc/linux-x64.zip
+          ./luavosk/misc/out/windows-x64.zip
+          ./luavosk/misc/out/linux-arm64.zip
+          ./luavosk/misc/out/linux-x64.zip
