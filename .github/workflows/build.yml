@@ -4,12 +4,8 @@ on:
   pull_request:
     types: [opened, reopened]
   push:
-    paths:
-      - src/**
-      - misc/**
-      - .github/**
-    # tags:
-    #   - 'v*'
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -52,9 +48,9 @@ jobs:
     - name: Zip it up
       working-directory: luavosk/misc
       run: |
-        zip -q windows-x64.zip out/win-amd64/luavosk.dll
-        zip -q linux-arm64.zip out/linux-arm64/luavosk.so
-        zip -q linux-x64.zip out/linux-amd64/luavosk.so
+        zip -q -r windows-x64.zip ../test out/win-amd64/luavosk.dll
+        zip -q -r linux-arm64.zip ../test out/linux-arm64/luavosk.so
+        zip -q -r linux-x64.zip ../test out/linux-amd64/luavosk.so
 
     - name: Create release
       uses: softprops/action-gh-release@v1
