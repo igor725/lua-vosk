@@ -24,6 +24,9 @@ jobs:
         fetch-depth: 0
         path: luavosk
 
+    - name: Minor preparations
+      run: sudo apt install gcc-aarch64-linux-gnu
+
     - name: Get previous tag
       id: prevtag
       shell: bash
