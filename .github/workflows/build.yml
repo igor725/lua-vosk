@@ -47,7 +47,7 @@ jobs:
 
     - name: Windows x64 build
       working-directory: luavosk/misc
-      run: ./build-windows-x64.sh
+      run: ./build-win-x64.sh
 
     - name: Zip it up
       working-directory: luavosk/misc
