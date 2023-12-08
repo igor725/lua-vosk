@@ -51,9 +51,9 @@ jobs:
         zip -q linux-arm64.zip linux-arm64/luavosk.so
         zip -q linux-x64.zip linux-amd64/luavosk.so
         cd ../../
-        zip -q -u -r ./misc/out/windows-x64.zip test/
-        zip -q -u -r ./misc/out/linux-arm64.zip test/
-        zip -q -u -r ./misc/out/linux-x64.zip test/
+        zip -q -u -r ./misc/out/windows-x64.zip test/ README.md LICENSE
+        zip -q -u -r ./misc/out/linux-arm64.zip test/ README.md LICENSE
+        zip -q -u -r ./misc/out/linux-x64.zip test/ README.md LICENSE
 
     - name: Create release
       uses: softprops/action-gh-release@v1
