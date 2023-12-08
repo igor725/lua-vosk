@@ -46,11 +46,15 @@ jobs:
       run: ./build-win-x64.sh
 
     - name: Zip it up
-      working-directory: luavosk/misc
+      working-directory: luavosk/misc/out
       run: |
-        zip -q -r windows-x64.zip ../test out/win-amd64/luavosk.dll
-        zip -q -r linux-arm64.zip ../test out/linux-arm64/luavosk.so
-        zip -q -r linux-x64.zip ../test out/linux-amd64/luavosk.so
+        zip -q windows-x64.zip win-amd64/luavosk.dll
+        zip -q linux-arm64.zip linux-arm64/luavosk.so
+        zip -q linux-x64.zip linux-amd64/luavosk.so
+        cd ../../
+        zip -q -u -r ./out/windows-x64.zip test/
+        zip -q -u -r ./out/linux-arm64.zip test/
+        zip -q -u -r ./out/linux-x64.zip test/
 
     - name: Create release
       uses: softprops/action-gh-release@v1
