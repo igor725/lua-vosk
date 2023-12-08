@@ -28,7 +28,7 @@ jobs:
       id: prevtag
       shell: bash
       run: |
-        echo "::tag::$(git describe --abbrev=0 --tags ${{ github.ref_name }}^)"
+        echo "tag=$(git describe --abbrev=0 --tags ${{ github.ref_name }}^)" >> $GITHUB_OUTPUT
 
     - name: Init LuaJIT
       working-directory: luavosk/misc
