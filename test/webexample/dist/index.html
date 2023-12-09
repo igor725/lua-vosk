@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="utf-8">
 		<title>Example usage of lua-vosk</title>
-		<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
+		<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 		<script>
 			window.addEventListener('load', _ => {
 				const scnod = document.createElement('script');
@@ -46,14 +47,64 @@
 				width: 100%;
 			}
 
-			#currmdl > *{
+			#currmdl > * {
 				display: inline;
 				margin: 5px;
+			}
+
+			#ldmdls_container {
+				margin-left: 5px;
 			}
 
 			#ldmdls > * {
 				display: inline;
 				margin-left: 10px;
+			}
+
+			#content {
+				width: 100%;
+				height: 100%;
+				border: 1px solid black;
+				overflow: auto;
+			}
+
+			.row {
+				position: relative;
+				height: 120px;
+				border-bottom: 1px solid black;
+			}
+
+			.row-text {
+				overflow: auto;
+				height: 100%;
+			}
+
+			.row:nth-child(even) {
+				background-color: rgba(122, 122, 122, 0.26);
+			}
+
+			.row-btns {
+				display: flex;
+				flex-direction: row;
+				position: absolute;
+				opacity: 0.2;
+				right: 0px;
+				bottom: 0px;
+				width: 64px;
+				height: 32px;
+			}
+
+			.row-btns:hover {
+				opacity: 1;
+			}
+
+			#runabort {
+				display: flex;
+				flex-direction: row;
+			}
+
+			#abort {
+				display: none;
 			}
 		</style>
 	</head>
@@ -62,11 +113,17 @@
 			<div id="currmdl">
 				<p>Current model:</p><select id="currmdlsel"></select>
 			</div>
-			<div id="ldmdls"></div>
-			<textarea id="text" readonly placeholder="Transcribed text here"></textarea>
+			<div id="ldmdls_container">
+				<p>Loaded models:</p>
+				<div id="ldmdls"></div>
+			</div>
+			<div id="content"></div>
 			<div id="buttons">
-				<input id="run" type="button" value="Start recording"/>
-				<input type="button" value="Clear field" onclick="document.getElementById('text').innerHTML = '';"/>
+				<div id="runabort">
+					<input id="run" type="button" value="Start recording"/>
+					<input id="abort" type="button" value="Abort recording"/>
+				</div>
+				<input type="button" value="Clear" onclick="document.getElementById('content').innerHTML = '';"/>
 			</div>
 		</div>
 	</body>
