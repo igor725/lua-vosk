@@ -30,7 +30,7 @@ jobs:
       run: |
         echo "tag=$(git describe --abbrev=0 --tags ${{ github.ref_name }}^)" >> $GITHUB_OUTPUT
 
-    - name: Init LuaJIT
+    - name: Init Lua 5.1
       working-directory: luavosk/misc
       run: ./init.sh
 
@@ -49,13 +49,13 @@ jobs:
     - name: Zip it up
       working-directory: luavosk/misc/out
       run: |
-        zip -q windows-x64.zip win-amd64/luavosk.dll
-        zip -q linux-arm64.zip linux-arm64/luavosk.so
-        zip -q linux-x64.zip linux-amd64/luavosk.so
+        zip -q lua51-mingw-x64.zip win-amd64/luavosk.dll
+        zip -q lua51-linux-arm64.zip linux-arm64/luavosk.so
+        zip -q lua51-linux-x64.zip linux-amd64/luavosk.so
         cd ../../
-        zip -q -u -r ./misc/out/windows-x64.zip test/ README.md LICENSE
-        zip -q -u -r ./misc/out/linux-arm64.zip test/ README.md LICENSE
-        zip -q -u -r ./misc/out/linux-x64.zip test/ README.md LICENSE
+        zip -q -u -r ./misc/out/lua51-mingw-x64.zip test/ README.md LICENSE
+        zip -q -u -r ./misc/out/lua51-linux-arm64.zip test/ README.md LICENSE
+        zip -q -u -r ./misc/out/lua51-linux-x64.zip test/ README.md LICENSE
 
     - name: Create release
       uses: softprops/action-gh-release@v1
@@ -63,6 +63,6 @@ jobs:
         name: Release ${{ github.ref_name }}
         body: "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ steps.prevtag.outputs.tag }}...${{ github.ref_name }}"
         files: |
-          ./luavosk/misc/out/windows-x64.zip
-          ./luavosk/misc/out/linux-arm64.zip
-          ./luavosk/misc/out/linux-x64.zip
+          ./luavosk/misc/out/lua51-mingw-x64.zip
+          ./luavosk/misc/out/lua51-linux-arm64.zip
+          ./luavosk/misc/out/lua51-linux-x64.zip
