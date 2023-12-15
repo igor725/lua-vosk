@@ -97,8 +97,6 @@ local function scanModels()
 		end
 	end
 
-
-
 	return mt
 end
 
@@ -147,7 +145,7 @@ end
 local function doThings(cl, data, size, mdi)
 	local pos = 0
 
-	local funcs = { -- TOOD: Is it safe to cast aunnamed function to callback?
+	local funcs = {
 		ffi.cast('sf_vio_get_filelen', function() return size end),
 		ffi.cast('sf_vio_seek', function(offset, whence)
 			if whence == 0 then
@@ -272,7 +270,6 @@ local function processClient(cl)
 					local mdl = availmodels[i]
 					local ens = tostring(loadedmodels[i] ~= nil)
 					send(cl, '["' .. mdl .. '", ' .. ens .. ']')
-					-- send(cl, '"' .. mdl .. '": {"enabled": ' .. ens .. ', "id": ' .. i .. '}')
 				end
 				send(cl, ']')
 				return
