@@ -148,25 +148,29 @@ local function doThings(cl, data, size, mdi)
 	local funcs = {
 		ffi.cast('sf_vio_get_filelen', function() return size end),
 		ffi.cast('sf_vio_seek', function(offset, whence)
+			offset = tonumber(offset) or 0
+
 			if whence == 0 then
-				pos = tonumber(offset) or 0
+				pos = offset
 			elseif whence == 1 then
-				pos = pos + (tonumber(offset) or 0)
+				pos = pos + offset
 			elseif whence == 2 then
-				pos = size - (tonumber(offset) or 0)
+				pos = size - offset
 			else
 				return 1
 			end
 
-			return 0
+			return (pos >= 0 or pos <= size) and 0 or 1
 		end),
 		ffi.cast('sf_vio_read', function(ptr, cnt)
 			if pos + tonumber(cnt) > size then
 				cnt = size - pos
 			end
 
-			ffi.copy(ptr, data + pos, cnt)
-			pos = pos + cnt
+			if cnt > 0 then
+				ffi.copy(ptr, data + pos, cnt)
+				pos = pos + cnt
+			end
 
 			return cnt
 		end),
