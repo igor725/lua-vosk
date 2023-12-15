@@ -43,11 +43,18 @@ ffi.cdef[[
 	int sf_close(SNDFILE *sf);
 ]]
 
-local lib = ffi.load('sndfile')
+local lib
+	do
+		local succ
+
+		succ, lib = pcall(ffi.load, 'libsndfile.so.1')
+		if not succ then
+			lib = ffi.load('sndfile')
+		end
+	end
 local socket = require('socket.core')
 local vosk = require('luavosk')
-
-vosk.init({'../libvosk.dll', '../libvosk.so', 'vosk'})
+vosk.init({'../libvosk.dll', '../libvosk.so', 'libvosk.dll', 'libvosk.so', 'libvosk.so.1'})
 vosk.loglevel(-999)
 
 if ffi.string(lib.sf_version_string()) < 'libsndfile-1.0.29' then

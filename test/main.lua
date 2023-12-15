@@ -6,7 +6,8 @@ else
 end
 
 local vosk = require('luavosk')
-vosk.init(--[[ При отсутствии параметра, указывающего путь до библиотеки, используется libvosk.so, либо libvosk.dll]])
+-- При отсутствии параметра, указывающего путь до библиотеки, используется libvosk.so, либо libvosk.dll
+vosk.init({'../libvosk.dll', '../libvosk.so', 'libvosk.dll', 'libvosk.so', 'libvosk.so.1'})
 vosk.loglevel(-999)
 -- -- Открываем файл, который хотим перевести в текст
 local f = io.open('rec.wav', 'rb')
