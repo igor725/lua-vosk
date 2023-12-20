@@ -21,7 +21,9 @@ jobs:
         path: luavosk
 
     - name: Minor preparations
-      run: sudo apt install gcc-aarch64-linux-gnu mingw-w64
+      run: |
+        sudo apt update
+        sudo apt install gcc-aarch64-linux-gnu mingw-w64
 
     - name: Get previous tag
       working-directory: luavosk
