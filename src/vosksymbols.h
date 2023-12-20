@@ -64,7 +64,7 @@ struct VoskLib {
 	void  (*recog_pwords)(vrcg, int);
 	void  (*recog_nlsml)(vrcg, int);
 	void  (*recog_epmode)(vrcg, int);
-	void  (*recog_epdelays)(vrcg, float, float);
+	void  (*recog_epdelays)(vrcg, float, float, float);
 	int   (*recog_accept)(vrcg, const void *, int);
 	int   (*recog_acceptf)(vrcg, const float *, int);
 	vstr  (*recog_result)(vrcg);

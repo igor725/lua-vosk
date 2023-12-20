@@ -20,4 +20,6 @@
 
 typedef const char *vstr;
 typedef void *vrcg, *vbrcg, *vmdl, *vbmdl, *vsmdl;
+
+extern int _experimental;
 #endif

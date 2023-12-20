@@ -4,6 +4,8 @@
 #include "voskbridge.h"
 #include "luaspkmodel.h"
 
+int _experimental = 0;
+
 static int loadvosk(lua_State *L) {
 	if (lua_istable(L, 1)) {
 		int tabsize = (int)lua_rawlen(L, 1);
@@ -80,11 +82,17 @@ static int usegpu(lua_State *L) {
 	return 0;
 }
 
+static int experimental(lua_State *L) {
+	_experimental = 1;
+	return 0;
+}
+
 static luaL_Reg vosklib[] = {
 	{"init", loadvosk},
 	{"loglevel", loglevel},
 	{"wavguess", wavguess},
 	{"usegpu", usegpu},
+	{"experimental", experimental},
 
 	{NULL, NULL}
 };

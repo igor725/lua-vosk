@@ -171,6 +171,7 @@ static int meta_epmode(lua_State *L) {
 		NULL
 	};
 
+	VLIB_EXPERIMENTAL();
 	VLIB_TEST_FUNC(recog_epmode);
 	int mode = 0;
 
@@ -187,6 +188,7 @@ static int meta_epmode(lua_State *L) {
 }
 
 static int meta_epdelays(lua_State *L) {
+	VLIB_EXPERIMENTAL();
 	VLIB_TEST_FUNC(recog_epdelays);
 	vlib.recog_epdelays(
 		lua_checkrecog(L, 1, 0),
