@@ -190,8 +190,9 @@ static int meta_epdelays(lua_State *L) {
 	VLIB_TEST_FUNC(recog_epdelays);
 	vlib.recog_epdelays(
 		lua_checkrecog(L, 1, 0),
-		(float)luaL_checknumber(L, 2),
-		(float)luaL_checknumber(L, 3)
+		(float)luaL_checknumber(L, 2), // t_start_max
+		(float)luaL_checknumber(L, 3), // t_end
+		(float)luaL_checknumber(L, 4) // t_max
 	);
 	return 0;
 }

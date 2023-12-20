@@ -6,3 +6,4 @@ test/webexample/*.dll
 /build/
 misc/out/
 misc/luajit/
+misc/lua-5.1.5/
