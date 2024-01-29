@@ -24,6 +24,18 @@
 			"environment": [],
 			"console": "integratedTerminal",
 			"preLaunchTask": "CMake: build"
+		},
+		{
+			"name": "(Windows) Launch LOVE",
+			"type": "cppvsdbg",
+			"request": "launch",
+			"program": "lovec.exe",
+			"args": ["."],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}/test/",
+			"environment": [],
+			"console": "integratedTerminal",
+			"preLaunchTask": "CMake: build"
 		}
 	]
 }

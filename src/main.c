@@ -30,44 +30,90 @@ static int loglevel(lua_State *L) {
 	return 0;
 }
 
+static lua_Integer _readfile(lua_State *L, void *buff, lua_Integer size, int idx) {
+	lua_getmetatable(L, idx);
+	lua_getfield(L, -1, "read");
+	lua_pushvalue(L, idx);
+	lua_pushinteger(L, size);
+	lua_call(L, 2, 2);
+	if (lua_isnil(L, -2)) {
+		lua_pop(L, 3);
+		return 0;
+	}
+
+	size_t eleng = 0;
+	const char *read = luaL_checklstring(L, -2, &eleng);
+	char *cbuff = (char *)buff;
+	while(eleng--) *cbuff++ = *read++;
+	lua_pop(L, 3);
+	return (lua_Integer)(cbuff - (char *)buff);
+}
+
+static lua_Integer _seekfile(lua_State *L, lua_Integer offset, int origin, int idx) {
+	lua_getmetatable(L, idx);
+	lua_getfield(L, -1, "seek");
+	lua_pushvalue(L, idx);
+	switch (origin) {
+		case SEEK_CUR:
+			lua_pushliteral(L, "cur");
+			break;
+
+		case SEEK_END:
+			lua_pushliteral(L, "end");
+			break;
+
+		case SEEK_SET:
+			lua_pushliteral(L, "set");
+			break;
+	}
+	lua_pushinteger(L, offset);
+	lua_call(L, 3, 2);
+	if (lua_isnil(L, -2)) {
+		lua_pop(L, 3);
+		return 1;
+	}
+
+	lua_pop(L, 3);
+	return 0;
+}
+
 static int wavguess(lua_State *L) {
-	FILE *fw = *(FILE **)luaL_checkudata(L, 1, LUA_FILEHANDLE);
 	int temp, nfsz, nsamp;
 	short nfmt, nchs;
 
-	if (fread(&temp, 4, 1, fw) != 1 || temp != 0x46464952/*RIFF*/)
+	if (_readfile(L, &temp, 4, 1) != 4 || temp != 0x46464952/*RIFF*/)
 		return luaL_error(L, "Not a wave file");
-	if (fseek(fw, 4, SEEK_CUR) != 0 || fread(&temp, 4, 1, fw) != 1 || temp != 0x45564157/*WAVE*/)
+	if (_seekfile(L, 4, SEEK_CUR, 1) != 0 || _readfile(L, &temp, 4, 1) != 4 || temp != 0x45564157/*WAVE*/)
 		return luaL_error(L, "WAVE id was not found");
-	if (fread(&temp, 4, 1, fw) != 1 || temp != 0x20746D66/*fmt */)
+	if (_readfile(L, &temp, 4, 1) != 4 || temp != 0x20746D66/*fmt */)
 		return luaL_error(L, "No format sub-chunk found");
-	if (fread(&nfsz, 4, 1, fw) != 1 || nfsz <= 0)
+	if (_readfile(L, &nfsz, 4, 1) != 4 || nfsz <= 0)
 		return luaL_error(L, "Invalid format sub-chunk size");
-	if (fread(&nfmt, 2, 1, fw) != 1 || (nfmt != 0x0001 && nfmt != 0x0003))
+	if (_readfile(L, &nfmt, 2, 1) != 2 || (nfmt != 0x0001 && nfmt != 0x0003))
 		return luaL_error(L, "Unsupported data format");
-	if (fread(&nchs, 2, 1, fw) != 1 || nchs > 1)
+	if (_readfile(L, &nchs, 2, 1) != 2 || nchs > 1)
 		return luaL_error(L, "Not a mono sound file");
-	if (fread(&nsamp, 4, 1, fw) != 1 || nsamp == 0)
+	if (_readfile(L, &nsamp, 4, 1) != 4 || nsamp == 0)
 		return luaL_error(L, "Failed to determine sample rate");
-	if (fseek(fw, 8, SEEK_CUR) != 0)
+	if (_seekfile(L, 8, SEEK_CUR, 1) != 0)
 		return luaL_error(L, "Unexpected EOF");
 
 	// Читаем расширенные данные для чанка формата, если такие имеются
 	if (nfsz > 16) {
 		temp = 0;
 
-		if (fread(&temp, 2, 1, fw) != 1 || fseek(fw, temp, SEEK_CUR) != 0)
+		if (_readfile(L, &temp, 2, 1) != 2 || _seekfile(L, temp, SEEK_CUR, 1) != 0)
 			return luaL_error(L, "Something wrong with the wave extension block");
 	}
 
 	while (1) {
-		if(fread(&temp, 4, 1, fw) != 1 || fread(&nfsz, 4, 1, fw) != 1) // Реюзаем nfsz, т.к. дальше он не нужен
+		if(_readfile(L, &temp, 4, 1) != 4 || _readfile(L, &nfsz, 4, 1) != 4) // Реюзаем nfsz, т.к. дальше он не нужен
 			return luaL_error(L, "Failed to read chunk info");
 
 		if (temp == 0x61746164) // При появлении data чанка завершаем цикл
 			break;
 
-		fseek(fw, nfsz, SEEK_CUR);
+		_seekfile(L, nfsz, SEEK_CUR, 1);
 	}
 
 	lua_pushinteger(L, nsamp);
