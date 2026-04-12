@@ -1,8 +1,8 @@
 #ifndef LUAVOSK_MODEL_H
 #define LUAVOSK_MODEL_H
-#include "main.h"
 #include "luahelp.h"
+#include "main.h"
 
-vmdl lua_checkmodel(lua_State *L, int idx, int batched);
-void luavosk_model(lua_State *L);
+vmdl lua_checkmodel(lua_State* L, int idx, int batched);
+void luavosk_model(lua_State* L);
 #endif
