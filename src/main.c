@@ -7,6 +7,7 @@
 
 #include <lauxlib.h>
 #include <lua.h>
+#include <stdint.h>
 
 int _experimental = 0;
 
